@@ -4355,7 +4355,7 @@
             };
 
             if (feedbacks.length === 0) {
-                analise.tendencias.push('⚠️ Sem dados suficientes para análise. Aguarde mais feedbacks.');
+                analise.tendencias.push('⚠️ Sem dados suficientes para análise. Aguarde mais avaliações.');
                 return analise;
             }
 
@@ -4366,57 +4366,142 @@
                 porAndar[f.andar].push(f);
             });
 
-            // Identificar tendências
-            Object.entries(porAndar).forEach(([andar, fbs]) => {
-                const mediaVaso = fbs.filter(f => f.vaso).reduce((acc, f) => acc + f.vaso, 0) / fbs.filter(f => f.vaso).length;
-                const mediaPia = fbs.filter(f => f.pia).reduce((acc, f) => acc + f.pia, 0) / fbs.filter(f => f.pia).length;
+            // Identificar tendências por andar
+            Object.entries(porAndar).forEach(([andar, avs]) => {
+                // Extrair notas dos campos (formato: "Masculino-4.5" ou "3.2")
+                const notasBanheiro = avs
+                    .map(a => parseFloat(a.banheiro?.split('-')[1] || a.banheiro))
+                    .filter(n => !isNaN(n) && n > 0);
                 
-                if (mediaVaso < 3) {
-                    analise.problemas.push(`❌ ${andar}: Vasos sanitários com avaliação baixa (${mediaVaso.toFixed(1)}/5)`);
-                    analise.sugestoes.push(`💡 Aumentar frequência de limpeza dos vasos no ${andar}`);
+                const notasCopa = avs
+                    .map(a => parseFloat(a.copa))
+                    .filter(n => !isNaN(n) && n > 0);
+                
+                const notasRelax = avs
+                    .map(a => parseFloat(a.relax))
+                    .filter(n => !isNaN(n) && n > 0);
+
+                // Calcular médias
+                const mediaBanheiro = notasBanheiro.length > 0 
+                    ? notasBanheiro.reduce((a, b) => a + b) / notasBanheiro.length 
+                    : 0;
+                const mediaCopa = notasCopa.length > 0 
+                    ? notasCopa.reduce((a, b) => a + b) / notasCopa.length 
+                    : 0;
+                const mediaRelax = notasRelax.length > 0 
+                    ? notasRelax.reduce((a, b) => a + b) / notasRelax.length 
+                    : 0;
+
+                // Identificar problemas (média abaixo de 3.0)
+                if (mediaBanheiro > 0 && mediaBanheiro < 3) {
+                    analise.problemas.push(`❌ ${andar}: Banheiro com avaliação baixa (${mediaBanheiro.toFixed(1)}/5.0)`);
+                    analise.sugestoes.push(`💡 Aumentar frequência de limpeza do banheiro no ${andar}`);
                 }
                 
-                if (mediaPia < 3) {
-                    analise.problemas.push(`❌ ${andar}: Pias com avaliação baixa (${mediaPia.toFixed(1)}/5)`);
-                    analise.sugestoes.push(`💡 Verificar produtos de limpeza das pias no ${andar}`);
+                if (mediaCopa > 0 && mediaCopa < 3) {
+                    analise.problemas.push(`❌ ${andar}: Copa com avaliação baixa (${mediaCopa.toFixed(1)}/5.0)`);
+                    analise.sugestoes.push(`💡 Revisar limpeza e organização da copa no ${andar}`);
+                }
+
+                if (mediaRelax > 0 && mediaRelax < 3) {
+                    analise.problemas.push(`❌ ${andar}: Área de descanso com avaliação baixa (${mediaRelax.toFixed(1)}/5.0)`);
+                    analise.sugestoes.push(`💡 Melhorar limpeza da área de descanso no ${andar}`);
                 }
                 
-                if (mediaVaso >= 4.5 && mediaPia >= 4.5) {
-                    analise.tendencias.push(`✅ ${andar}: Excelente qualidade de limpeza (média ${((mediaVaso + mediaPia) / 2).toFixed(1)}/5)`);
+                // Identificar pontos positivos (média acima de 4.5)
+                const todasMedias = [mediaBanheiro, mediaCopa, mediaRelax].filter(m => m > 0);
+                const mediaGeral = todasMedias.length > 0 
+                    ? todasMedias.reduce((a, b) => a + b) / todasMedias.length 
+                    : 0;
+
+                if (mediaGeral >= 4.5) {
+                    analise.tendencias.push(`✅ ${andar}: Excelente qualidade geral (média ${mediaGeral.toFixed(1)}/5.0)`);
+                } else if (mediaGeral >= 4.0) {
+                    analise.tendencias.push(`👍 ${andar}: Boa qualidade de limpeza (média ${mediaGeral.toFixed(1)}/5.0)`);
                 }
             });
 
-            // Problemas recorrentes nos comentários
-            const comentarios = feedbacks.filter(f => f.comentarios && f.comentarios !== 'Nenhum').map(f => f.comentarios.toLowerCase());
+            // Analisar comentários
+            const comentarios = feedbacks
+                .filter(f => f.comentarios && f.comentarios !== 'Nenhum')
+                .map(f => f.comentarios.toLowerCase());
             
-            if (comentarios.some(c => c.includes('papel') || c.includes('higiênico'))) {
-                analise.problemas.push('❌ Problema recorrente: Falta de papel higiênico');
-                analise.sugestoes.push('💡 Implementar verificação de estoque de papel higiênico 2x ao dia');
-            }
-            
-            if (comentarios.some(c => c.includes('sabonete') || c.includes('sabão'))) {
-                analise.problemas.push('❌ Problema recorrente: Falta de sabonete');
-                analise.sugestoes.push('💡 Criar checklist de reposição de insumos');
-            }
+            // Palavras-chave para problemas comuns
+            const palavrasChave = {
+                papel: ['papel', 'higiênico', 'toalha'],
+                sabonete: ['sabonete', 'sabão', 'detergente'],
+                lixo: ['lixo', 'lixeira', 'sujeira'],
+                cheiro: ['cheiro', 'odor', 'fedido'],
+                agua: ['água', 'torneira', 'vazamento']
+            };
+
+            Object.entries(palavrasChave).forEach(([categoria, palavras]) => {
+                if (comentarios.some(c => palavras.some(p => c.includes(p)))) {
+                    if (categoria === 'papel') {
+                        analise.problemas.push('❌ Problema recorrente: Falta de papel higiênico');
+                        analise.sugestoes.push('💡 Implementar verificação de estoque 2x ao dia');
+                    } else if (categoria === 'sabonete') {
+                        analise.problemas.push('❌ Problema recorrente: Falta de sabonete');
+                        analise.sugestoes.push('💡 Criar checklist de reposição de insumos');
+                    } else if (categoria === 'lixo') {
+                        analise.problemas.push('❌ Problema: Lixeiras não esvaziadas regularmente');
+                        analise.sugestoes.push('💡 Aumentar frequência de coleta de lixo');
+                    } else if (categoria === 'cheiro') {
+                        analise.problemas.push('❌ Problema: Odor desagradável reportado');
+                        analise.sugestoes.push('💡 Verificar ventilação e uso de aromatizantes');
+                    } else if (categoria === 'agua') {
+                        analise.problemas.push('❌ Problema: Questões relacionadas à água');
+                        analise.sugestoes.push('💡 Verificar torneiras e instalações hidráulicas');
+                    }
+                }
+            });
 
             // Estatísticas gerais
-            analise.estatisticas.totalFeedbacks = feedbacks.length;
-            analise.estatisticas.mediaGeral = (
-                feedbacks.reduce((acc, f) => acc + (f.vaso || 0) + (f.pia || 0), 0) / 
-                (feedbacks.filter(f => f.vaso || f.pia).length * 2)
-            ).toFixed(2);
+            const todasNotas = [];
+            feedbacks.forEach(f => {
+                const notaBanheiro = parseFloat(f.banheiro?.split('-')[1] || f.banheiro);
+                const notaCopa = parseFloat(f.copa);
+                const notaRelax = parseFloat(f.relax);
+                
+                if (!isNaN(notaBanheiro) && notaBanheiro > 0) todasNotas.push(notaBanheiro);
+                if (!isNaN(notaCopa) && notaCopa > 0) todasNotas.push(notaCopa);
+                if (!isNaN(notaRelax) && notaRelax > 0) todasNotas.push(notaRelax);
+            });
+
+            analise.estatisticas.totalAvaliacoes = feedbacks.length;
+            analise.estatisticas.totalNotas = todasNotas.length;
+            analise.estatisticas.mediaGeral = todasNotas.length > 0 
+                ? (todasNotas.reduce((a, b) => a + b) / todasNotas.length).toFixed(2)
+                : 'N/A';
             analise.estatisticas.andarMaisAvaliado = Object.keys(porAndar).reduce((a, b) => 
                 porAndar[a].length > porAndar[b].length ? a : b
-            );
-            analise.estatisticas.feedbacksAnonimos = feedbacks.filter(f => f.nome === 'Anônimo' || f.matricula === 'Anônimo').length;
+            , 'N/A');
+            analise.estatisticas.avaliacoesAnonimas = feedbacks.filter(
+                f => f.identificacao === 'Anônimo'
+            ).length;
+            analise.estatisticas.avaliacoesIdentificadas = feedbacks.length - analise.estatisticas.avaliacoesAnonimas;
 
             // Sugestões gerais
             if (feedbacks.length < 10) {
-                analise.sugestoes.push('💡 Incentivar mais funcionários a enviar feedbacks para análises mais precisas');
+                analise.sugestoes.push('💡 Incentivar mais avaliações para análises mais precisas');
             }
 
             if (analise.problemas.length === 0) {
                 analise.tendencias.push('🎉 Nenhum problema crítico identificado! Continue o bom trabalho!');
+            }
+
+            // Identificar áreas que precisam atenção
+            const areasMaisAvaliadas = {
+                banheiro: feedbacks.filter(f => f.banheiro && f.banheiro !== 'N/A').length,
+                copa: feedbacks.filter(f => f.copa && f.copa !== 'N/A').length,
+                relax: feedbacks.filter(f => f.relax && f.relax !== 'N/A').length
+            };
+
+            const areaMenosAvaliada = Object.entries(areasMaisAvaliadas)
+                .sort((a, b) => a[1] - b[1])[0];
+
+            if (areaMenosAvaliada[1] < feedbacks.length * 0.3) {
+                analise.sugestoes.push(`💡 Incentivar avaliações da ${areaMenosAvaliada[0]} (menos avaliada)`);
             }
 
             return analise;
@@ -4442,8 +4527,8 @@
             document.getElementById('estatisticas').innerHTML = `
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
                     <div style="background:#f8fafc;padding:20px;border-radius:12px;text-align:center;">
-                        <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.totalFeedbacks || 0}</div>
-                        <div style="color:#666;font-size:14px;margin-top:5px;">Total de Feedbacks</div>
+                        <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.totalAvaliacoes || 0}</div>
+                        <div style="color:#666;font-size:14px;margin-top:5px;">Total de Avaliações</div>
                     </div>
                     <div style="background:#f8fafc;padding:20px;border-radius:12px;text-align:center;">
                         <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.mediaGeral || 'N/A'}</div>
@@ -4454,8 +4539,16 @@
                         <div style="color:#666;font-size:14px;margin-top:5px;">Andar Mais Avaliado</div>
                     </div>
                     <div style="background:#f8fafc;padding:20px;border-radius:12px;text-align:center;">
-                        <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.feedbacksAnonimos || 0}</div>
-                        <div style="color:#666;font-size:14px;margin-top:5px;">Feedbacks Anônimos</div>
+                        <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.avaliacoesAnonimas || 0}</div>
+                        <div style="color:#666;font-size:14px;margin-top:5px;">Avaliações Anônimas</div>
+                    </div>
+                    <div style="background:#f8fafc;padding:20px;border-radius:12px;text-align:center;">
+                        <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.avaliacoesIdentificadas || 0}</div>
+                        <div style="color:#666;font-size:14px;margin-top:5px;">Avaliações Identificadas</div>
+                    </div>
+                    <div style="background:#f8fafc;padding:20px;border-radius:12px;text-align:center;">
+                        <div style="font-size:32px;font-weight:900;color:#E63946;">${analise.estatisticas.totalNotas || 0}</div>
+                        <div style="color:#666;font-size:14px;margin-top:5px;">Total de Notas</div>
                     </div>
                 </div>
             `;
@@ -4465,26 +4558,26 @@
         // AVALIAÇÃO RÁPIDA
         // ============================================
 
-function showQuickFeedback() {
-document.getElementById('loginScreen').style.display = 'none';
-document.getElementById('quickFeedbackScreen').style.display = 'block';
-}
+        function showQuickFeedback() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('quickFeedbackScreen').style.display = 'block';
+        }
 
-function hideQuickFeedback() {
-document.getElementById('quickFeedbackScreen').style.display = 'none';
-document.getElementById('loginScreen').style.display = 'block';
-document.getElementById('quickFeedbackForm').reset();
-// Resetar valores dos sliders
-document.getElementById('qf_banheiro_value').textContent = '0.0';
-document.getElementById('qf_copa_value').textContent = '0.0';
-document.getElementById('qf_relax_value').textContent = '0.0';
-}
+        function hideQuickFeedback() {
+            document.getElementById('quickFeedbackScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('quickFeedbackForm').reset();
+            // Resetar valores dos sliders
+            document.getElementById('qf_banheiro_value').textContent = '0.0';
+            document.getElementById('qf_copa_value').textContent = '0.0';
+            document.getElementById('qf_relax_value').textContent = '0.0';
+        }
 
-function updateSliderValue(sliderId) {
-const slider = document.getElementById(sliderId);
-const valueSpan = document.getElementById(sliderId + '_value');
-valueSpan.textContent = parseFloat(slider.value).toFixed(1);
-}
+        function updateSliderValue(sliderId) {
+            const slider = document.getElementById(sliderId);
+            const valueSpan = document.getElementById(sliderId + '_value');
+            valueSpan.textContent = parseFloat(slider.value).toFixed(1);
+        }
 
         // Inicializar status online/offline
 
@@ -4576,4 +4669,3 @@ valueSpan.textContent = parseFloat(slider.value).toFixed(1);
     </script>
 </body>
 </html>
-
