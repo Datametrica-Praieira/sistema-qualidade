@@ -561,6 +561,43 @@
             box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
         }
 
+        /* Slider com gradiente de cores */
+        .slider-container {
+            padding: 10px;
+        }
+
+        .color-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 10px;
+            background: linear-gradient(to right, #E63946 0%, #FFD93D 50%, #6BCF7F 100%);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .color-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #2C3E50;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .color-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #2C3E50;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
         .btn-success {
             background: linear-gradient(135deg, #E63946 0%, #FF6B6B 100%);
             color: white;
@@ -1912,11 +1949,131 @@
 
                 <button type="submit" class="btn-primary">🔓 Entrar</button>
                 
+                <div style="margin-top:20px;">
+                    <button type="button" onclick="showQuickFeedback()" class="btn-secondary" style="width:100%;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;border:none;">
+                        ⭐ Enviar Avaliação Rápida
+                    </button>
+                </div>
+                
                 <div style="text-align:center;margin-top:20px;">
                     <a href="#" onclick="showForgotPasswordModal(); return false;" style="color:#E63946;text-decoration:none;font-size:14px;font-weight:600;">
                         🔒 Esqueci minha senha
                     </a>
                 </div>
+            </form>
+        </div>
+
+        <!-- Tela de Avaliação Rápida -->
+        <div id="quickFeedbackScreen" class="login-screen" style="display:none;max-width:600px;">
+            <div style="position:relative;">
+                <button onclick="hideQuickFeedback()" style="position:absolute;left:0;top:0;background:transparent;border:none;color:#999;font-size:14px;cursor:pointer;padding:5px 10px;">
+                    ← Voltar
+                </button>
+                <h2 style="text-align:center;">⭐ Avaliação Rápida</h2>
+            </div>
+            
+            <form id="quickFeedbackForm" style="margin-top:20px;">
+                <!-- Escolha do Andar -->
+                <div class="form-group">
+                    <label>📍 Escolha o andar: *</label>
+                    <select id="qf_andar" required style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:12px;font-size:16px;">
+                        <option value="">Selecione o andar</option>
+                        <option value="Térreo">Térreo</option>
+                        <option value="1º">1º Andar</option>
+                        <option value="2º">2º Andar</option>
+                        <option value="3º">3º Andar</option>
+                        <option value="4º">4º Andar</option>
+                        <option value="5º">5º Andar</option>
+                    </select>
+                </div>
+
+                <!-- Avaliação do Banheiro -->
+                <div style="background:#F8F9FA;padding:20px;border-radius:12px;margin-bottom:20px;">
+                    <h3 style="margin:0 0 15px 0;color:#2C3E50;font-size:18px;">🚻 Como você avalia o banheiro?</h3>
+                    
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block;margin-bottom:8px;font-weight:600;">Tipo: *</label>
+                        <div style="display:flex;gap:20px;">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="radio" name="qf_banheiro_tipo" value="Masculino" required>
+                                <span>Masculino</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="radio" name="qf_banheiro_tipo" value="Feminino">
+                                <span>Feminino</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display:block;margin-bottom:10px;font-weight:600;">Avaliação:</label>
+                        <div class="slider-container">
+                            <input type="range" id="qf_banheiro" min="0" max="5" step="0.1" value="0" class="color-slider" oninput="updateSliderValue('qf_banheiro')">
+                            <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;margin-top:5px;">
+                                <span>🔴 Ruim</span>
+                                <span>🟡 Regular</span>
+                                <span>🟢 Bom</span>
+                            </div>
+                            <div style="text-align:center;margin-top:10px;font-size:18px;font-weight:bold;color:#2C3E50;">
+                                Nota: <span id="qf_banheiro_value">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avaliação da Copa -->
+                <div style="background:#F8F9FA;padding:20px;border-radius:12px;margin-bottom:20px;">
+                    <h3 style="margin:0 0 15px 0;color:#2C3E50;font-size:18px;">☕ Como você avalia a Copa?</h3>
+                    <div>
+                        <label style="display:block;margin-bottom:10px;font-weight:600;">Avaliação:</label>
+                        <div class="slider-container">
+                            <input type="range" id="qf_copa" min="0" max="5" step="0.1" value="0" class="color-slider" oninput="updateSliderValue('qf_copa')">
+                            <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;margin-top:5px;">
+                                <span>🔴 Ruim</span>
+                                <span>🟡 Regular</span>
+                                <span>🟢 Bom</span>
+                            </div>
+                            <div style="text-align:center;margin-top:10px;font-size:18px;font-weight:bold;color:#2C3E50;">
+                                Nota: <span id="qf_copa_value">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avaliação da Área de Relax -->
+                <div style="background:#F8F9FA;padding:20px;border-radius:12px;margin-bottom:20px;">
+                    <h3 style="margin:0 0 15px 0;color:#2C3E50;font-size:18px;">🛋️ Como você avalia a área de descanso?</h3>
+                    <div>
+                        <label style="display:block;margin-bottom:10px;font-weight:600;">Avaliação:</label>
+                        <div class="slider-container">
+                            <input type="range" id="qf_relax" min="0" max="5" step="0.1" value="0" class="color-slider" oninput="updateSliderValue('qf_relax')">
+                            <div style="display:flex;justify-content:space-between;font-size:12px;color:#666;margin-top:5px;">
+                                <span>🔴 Ruim</span>
+                                <span>🟡 Regular</span>
+                                <span>🟢 Bom</span>
+                            </div>
+                            <div style="text-align:center;margin-top:10px;font-size:18px;font-weight:bold;color:#2C3E50;">
+                                Nota: <span id="qf_relax_value">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentários -->
+                <div class="form-group">
+                    <label>💬 Comentários (opcional):</label>
+                    <textarea id="qf_comentarios" rows="3" placeholder="Sugestões, elogios, críticas ou melhorias..." style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:12px;font-size:14px;font-family:inherit;resize:vertical;"></textarea>
+                </div>
+
+                <!-- Identificação (opcional) -->
+                <div class="form-group">
+                    <label>👤 Seu nome (opcional):</label>
+                    <input type="text" id="qf_identificacao" placeholder="Digite seu nome se quiser se identificar" style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:12px;font-size:16px;">
+                </div>
+
+                <button type="submit" class="btn-primary" style="width:100%;font-size:18px;padding:15px;">
+                    📤 Enviar Avaliação
+                </button>
             </form>
         </div>
 
@@ -1958,7 +2115,6 @@
                 <button class="tab" id="tabHistorico" onclick="showTab('historico')" style="display:none;">📊 Histórico</button>
                 <button class="tab" id="tabAnalise" onclick="showTab('analise')" style="display:none;">🤖 Análise IA</button>
                 <button class="tab" onclick="showTab('meta')">🎯 Meta</button>
-                <button class="tab" onclick="showTab('feedback')">💭 Feedback</button>
                 <button class="tab" id="tabFuncionarios" onclick="showTab('funcionarios')" style="display:none;">👥 Funcionários</button>
                 <button class="tab" id="tabSolicitacoes" onclick="showTab('solicitacoes')" style="display:none;">🔔 Solicitações</button>
             </div>
@@ -2277,225 +2433,6 @@
                     </div>
                 </div>
 
-                <!-- Aba: Feedback -->
-                <div id="feedback" class="tab-content">
-                    <div class="meta-container">
-                        <div class="meta-title">💭 FEEDBACK DETALHADO DOS AMBIENTES</div>
-
-                        <div id="feedbackWarning" class="warning-box" style="display:none;">
-                            <p>⚠️ Você já enviou um feedback este mês!</p>
-                            <p>Aguarde até o próximo mês para enviar novamente.</p>
-                        </div>
-
-                        <form id="feedbackForm">
-                            <!-- Opção de Anonimato -->
-                            <div class="rating-section">
-                                <div style="background:#FFF9E6;border:2px solid #FFD93D;border-radius:15px;padding:20px;margin-bottom:20px;">
-                                    <label style="display:flex;align-items:center;gap:15px;cursor:pointer;text-transform:none;letter-spacing:0;margin:0;">
-                                        <input type="checkbox" id="feedbackAnonimo" style="width:30px;height:30px;accent-color:#E63946;cursor:pointer;">
-                                        <div>
-                                            <strong style="font-size:18px;color:#2C3E50;">🎭 Enviar Feedback Anônimo</strong>
-                                            <p style="margin:5px 0 0 0;font-size:14px;color:#666;font-weight:normal;">Ao marcar esta opção, seu nome e matrícula não serão registrados no feedback</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Seleção de Andar -->
-                            <div class="rating-section">
-                                <div class="section-title">🏢 Qual andar você utiliza?</div>
-                                <div class="andar-buttons">
-                                    <div class="andar-btn" onclick="selectAndar('Térreo')">Térreo</div>
-                                    <div class="andar-btn" onclick="selectAndar('1º')">1º</div>
-                                    <div class="andar-btn" onclick="selectAndar('2º')">2º</div>
-                                    <div class="andar-btn" onclick="selectAndar('3º')">3º</div>
-                                    <div class="andar-btn" onclick="selectAndar('4º')">4º</div>
-                                    <div class="andar-btn" onclick="selectAndar('5º')">5º</div>
-                                </div>
-                                <input type="hidden" id="feedbackAndar" required>
-                            </div>
-
-                            <!-- Avaliação Detalhada - Banheiros -->
-                            <div class="rating-section">
-                                <div style="text-align:center;padding:10px;background:#F8F9FA;border-radius:8px;margin-bottom:15px;">
-                                    <small style="color:#666;font-size:13px;">
-                                        ⭐ = Muito Insatisfeito | ⭐⭐ = Insatisfeito | ⭐⭐⭐ = Regular | ⭐⭐⭐⭐ = Satisfeito | ⭐⭐⭐⭐⭐ = Muito Satisfeito
-                                    </small>
-                                </div>
-                                
-                                <div class="section-title">🚽 BANHEIROS</div>
-                                
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza dos Vasos Sanitários</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('vaso', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('vaso', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('vaso', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('vaso', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('vaso', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza das Pias e Torneiras</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('pia', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('pia', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('pia', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('pia', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('pia', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza das Cabines/Boxes</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('cabine', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('cabine', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('cabine', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('cabine', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('cabine', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza do Chão do Banheiro</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('chaoBanheiro', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoBanheiro', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoBanheiro', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoBanheiro', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoBanheiro', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Disponibilidade de Papel Higiênico</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('papel', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('papel', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('papel', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('papel', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('papel', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Disponibilidade de Sabonete/Sabão</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('sabonete', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('sabonete', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('sabonete', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('sabonete', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('sabonete', 5)">★</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Avaliação Detalhada - Copa -->
-                            <div class="rating-section">
-                                <div class="section-title">☕ COPA</div>
-                                
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza das Mesas</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('mesasCopa', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('mesasCopa', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('mesasCopa', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('mesasCopa', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('mesasCopa', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza da Pia da Copa</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('piaCopa', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('piaCopa', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('piaCopa', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('piaCopa', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('piaCopa', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza do Chão da Copa</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('chaoCopa', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoCopa', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoCopa', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoCopa', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoCopa', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Organização Geral da Copa</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoCopa', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoCopa', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoCopa', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoCopa', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoCopa', 5)">★</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Avaliação Detalhada - Área de Descanso -->
-                            <div class="rating-section">
-                                <div class="section-title">😌 ÁREA DE DESCANSO</div>
-                                
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza dos Móveis</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('moveisDescanso', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('moveisDescanso', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('moveisDescanso', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('moveisDescanso', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('moveisDescanso', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Limpeza do Chão</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('chaoDescanso', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoDescanso', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoDescanso', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoDescanso', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('chaoDescanso', 5)">★</span>
-                                    </div>
-                                </div>
-
-                                <div class="detailed-rating-item">
-                                    <label>Organização Geral</label>
-                                    <div class="mini-rating">
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoDescanso', 1)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoDescanso', 2)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoDescanso', 3)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoDescanso', 4)">★</span>
-                                        <span class="mini-star" onclick="setDetailedRating('organizacaoDescanso', 5)">★</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Observações -->
-                            <div class="rating-section">
-                                <div class="section-title">💬 Observações e Sugestões de Melhoria</div>
-                                <textarea id="feedbackComentarios" placeholder="Deixe suas observações, sugestões ou elogios sobre os ambientes...
-
-Exemplos:
-- Falta sabonete no 3º andar
-- As mesas da copa poderiam ser limpas mais vezes ao dia
-- A área de descanso está muito bem organizada
-- Sugestão: adicionar mais lixeiras no corredor" style="min-height:120px;"></textarea>
-                            </div>
-
-                            <button type="submit" class="btn-success" id="btnSubmitFeedback">📋 Registrar Feedback</button>
-                        </form>
-                    </div>
-                </div>
-
                 <!-- Aba: Funcionários -->
                 <div id="funcionarios" class="tab-content">
                     <div class="meta-container">
@@ -2537,7 +2474,6 @@ Exemplos:
                                             <option value="">Selecione a função</option>
                                             <option value="ADM">👔 Administrador (ADM)</option>
                                             <option value="ASG">🧹 Auxiliar de Serviços Gerais (ASG)</option>
-                                            <option value="Funcionário">👤 Funcionário Normal</option>
                                         </select>
                                     </div>
                                     <button class="btn-primary" onclick="addEmployee()">➕ Adicionar</button>
@@ -2595,7 +2531,7 @@ Exemplos:
         </div>
 
         <div class="footer">
-            © 2026 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
+            © 2025 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
             <a class="settings-link" id="settingsLink" onclick="showConfigBanner()" style="display:none;">⚙️ Configurações</a>
         </div>
     </div>
@@ -2730,7 +2666,8 @@ Exemplos:
         // Variáveis globais
         let stream = null;
         let photoData = null;
-        let SCRIPT_URL = '';
+        let SCRIPT_URL_LIMPEZA = '';
+        let SCRIPT_URL_FEEDBACK = '';
         let currentUser = null;
 
         // Inicializar
@@ -2790,20 +2727,8 @@ Exemplos:
                 // Ranking visível na meta (não precisa fazer nada, já está lá)
             } else if (funcao === 'ASG') {
                 // ASG: Só acesso a Novo Registro e Meta
-                // Esconder Feedback
-                document.querySelector('.tab[onclick*="feedback"]').style.display = 'none';
-                // Esconder todas as outras abas (já estão hidden por padrão)
-                // Mostrar aba "novo" que já está visível por padrão
                 // Esconder ranking na aba Meta
                 currentUser.hideRanking = true;
-            } else {
-                // Funcionário Normal: APENAS Feedback
-                // Esconder aba de "Novo Registro"
-                document.querySelector('.tab[onclick*="novo"]').style.display = 'none';
-                // Esconder aba de "Meta"
-                document.querySelector('.tab[onclick*="meta"]').style.display = 'none';
-                // Mostrar Feedback como primeira aba
-                showTab('feedback');
             }
             
             // Atualizar interface
@@ -2947,8 +2872,6 @@ Exemplos:
             // Mostrar aba de novo registro, meta e feedback novamente
             document.querySelector('.tab[onclick*="novo"]').style.display = 'block';
             document.querySelector('.tab[onclick*="meta"]').style.display = 'block';
-            document.querySelector('.tab[onclick*="feedback"]').style.display = 'block';
-            
             // Mostrar ranking novamente
             document.getElementById('rankingSection').style.display = 'block';
             
@@ -3214,7 +3137,7 @@ Exemplos:
         document.getElementById('checklistForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (!SCRIPT_URL) {
+            if (!SCRIPT_URL_LIMPEZA) {
                 alert('⚠️ Configure a URL do Google Apps Script primeiro!');
                 document.getElementById('configBanner').classList.add('show');
                 return;
@@ -3439,8 +3362,8 @@ Exemplos:
             
             list.innerHTML = employees.map(([matricula, data]) => {
                 const isAdmin = ADMINS.includes(matricula);
-                let badgeClass = 'funcionario';
-                let badgeText = data.funcao || 'Funcionário';
+                let badgeClass = 'asg';
+                let badgeText = data.funcao || 'ASG';
                 
                 if (isAdmin || data.funcao === 'ADM') {
                     badgeClass = 'adm';
@@ -3481,7 +3404,6 @@ Exemplos:
                 <select id="novaFuncao" style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:12px;font-size:16px;margin-bottom:10px;">
                     <option value="ADM" ${employee.funcao === 'ADM' ? 'selected' : ''}>👔 Administrador (ADM)</option>
                     <option value="ASG" ${employee.funcao === 'ASG' ? 'selected' : ''}>🧹 Auxiliar de Serviços Gerais (ASG)</option>
-                    <option value="Funcionário" ${employee.funcao === 'Funcionário' ? 'selected' : ''}>👤 Funcionário Normal</option>
                 </select>
             `;
             modal.querySelector('.confirm-modal-buttons').innerHTML = `
@@ -3853,145 +3775,8 @@ Exemplos:
             loadResetRequestsList();
         }
 
-        // Feedback System
+        // Feedback System (código removido - será implementado em nova conversa)
         let selectedAndar = '';
-        let detailedRatings = {};
-
-        function checkFeedbackEligibility() {
-            const lastFeedback = localStorage.getItem(`feedback_${currentUser.matricula}_date`);
-            
-            if (lastFeedback) {
-                const lastDate = new Date(lastFeedback);
-                const now = new Date();
-                
-                // Verificar se é o mesmo mês
-                if (lastDate.getMonth() === now.getMonth() && lastDate.getFullYear() === now.getFullYear()) {
-                    document.getElementById('feedbackWarning').style.display = 'block';
-                    document.getElementById('btnSubmitFeedback').disabled = true;
-                    document.getElementById('btnSubmitFeedback').style.opacity = '0.5';
-                    return false;
-                }
-            }
-            
-            document.getElementById('feedbackWarning').style.display = 'none';
-            document.getElementById('btnSubmitFeedback').disabled = false;
-            document.getElementById('btnSubmitFeedback').style.opacity = '1';
-            return true;
-        }
-
-        function setDetailedRating(item, rating) {
-            detailedRatings[item] = rating;
-            
-            // Encontrar o grupo de estrelas correto
-            const stars = event.target.parentElement.querySelectorAll('.mini-star');
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('selected');
-                } else {
-                    star.classList.remove('selected');
-                }
-            });
-        }
-
-        function selectAndar(andar) {
-            selectedAndar = andar;
-            document.getElementById('feedbackAndar').value = andar;
-            
-            document.querySelectorAll('.andar-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            
-            event.target.classList.add('selected');
-        }
-
-        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (!checkFeedbackEligibility()) {
-                showInfoModal('⚠️ Limite Mensal Atingido', 'Você já enviou um feedback este mês! Aguarde o próximo mês para enviar novamente.');
-                return;
-            }
-            
-            if (!selectedAndar) {
-                showInfoModal('⚠️ Andar Não Selecionado', 'Por favor, selecione o andar que você utiliza!');
-                return;
-            }
-            
-            // Verificar se pelo menos uma avaliação foi feita
-            if (Object.keys(detailedRatings).length === 0) {
-                showInfoModal('⚠️ Nenhuma Avaliação', 'Por favor, avalie pelo menos um item antes de enviar!');
-                return;
-            }
-            
-            // Verificar se é anônimo
-            const isAnonimo = document.getElementById('feedbackAnonimo').checked;
-            
-            const feedback = {
-                matricula: isAnonimo ? 'Anônimo' : currentUser.matricula,
-                nome: isAnonimo ? 'Anônimo' : currentUser.nome,
-                andar: selectedAndar,
-                // Avaliações Detalhadas
-                vaso: detailedRatings.vaso || 0,
-                pia: detailedRatings.pia || 0,
-                cabine: detailedRatings.cabine || 0,
-                chaoBanheiro: detailedRatings.chaoBanheiro || 0,
-                papel: detailedRatings.papel || 0,
-                sabonete: detailedRatings.sabonete || 0,
-                mesasCopa: detailedRatings.mesasCopa || 0,
-                piaCopa: detailedRatings.piaCopa || 0,
-                chaoCopa: detailedRatings.chaoCopa || 0,
-                organizacaoCopa: detailedRatings.organizacaoCopa || 0,
-                moveisDescanso: detailedRatings.moveisDescanso || 0,
-                chaoDescanso: detailedRatings.chaoDescanso || 0,
-                organizacaoDescanso: detailedRatings.organizacaoDescanso || 0,
-                comentarios: document.getElementById('feedbackComentarios').value || 'Nenhum',
-                data: new Date().toLocaleDateString('pt-BR'),
-                hora: new Date().toLocaleTimeString('pt-BR')
-            };
-            
-            // Salvar localmente
-            const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-            feedbacks.push(feedback);
-            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-            
-            // Marcar que enviou feedback este mês
-            localStorage.setItem(`feedback_${currentUser.matricula}_date`, new Date().toISOString());
-            
-            // Enviar para Google Sheets - Planilha de Feedback
-            if (SCRIPT_URL_FEEDBACK) {
-                try {
-                    await fetch(SCRIPT_URL_FEEDBACK, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(feedback)
-                    });
-                } catch (error) {
-                    console.error('Erro ao enviar feedback:', error);
-                    // Continua mesmo se houver erro, pois salvou localmente
-                }
-            }
-            
-            // Reset form
-            document.getElementById('feedbackForm').reset();
-            detailedRatings = {};
-            selectedAndar = '';
-            document.querySelectorAll('.mini-star').forEach(s => s.classList.remove('selected'));
-            document.querySelectorAll('.andar-btn').forEach(b => b.classList.remove('selected'));
-            
-            checkFeedbackEligibility();
-            
-            showSuccessModal();
-            document.querySelector('.success-modal h2').textContent = 'Feedback Enviado!';
-            document.querySelector('.success-modal p').textContent = 'Obrigado pela sua avaliação detalhada! Seu feedback foi registrado com sucesso.';
-            
-            setTimeout(() => {
-                document.querySelector('.success-modal h2').textContent = 'Limpeza Registrada!';
-                document.querySelector('.success-modal p').textContent = 'O registro foi salvo com sucesso no Google Sheets.';
-            }, 3500);
-        });
 
         // Modal de informação customizado (substitui alert)
         function showInfoModal(title, message) {
@@ -4023,6 +3808,7 @@ Exemplos:
             document.getElementById('warningModal').classList.add('show');
         }
 
+        // Modal de aviso que fica sempre na frente
         // ============================================
         // FILTROS AVANÇADOS NO HISTÓRICO
         // ============================================
@@ -4301,8 +4087,8 @@ Exemplos:
             
             list.innerHTML = filtered.map(([matricula, data]) => {
                 const isAdmin = ADMINS.includes(matricula);
-                let badgeClass = 'funcionario';
-                let badgeText = data.funcao || 'Funcionário';
+                let badgeClass = 'asg';
+                let badgeText = data.funcao || 'ASG';
                 
                 if (isAdmin || data.funcao === 'ADM') {
                     badgeClass = 'adm';
@@ -4677,6 +4463,111 @@ Exemplos:
                 </div>
             `;
         }
+
+        // ============================================
+        // AVALIAÇÃO RÁPIDA
+        // ============================================
+
+function showQuickFeedback() {
+document.getElementById('loginScreen').style.display = 'none';
+document.getElementById('quickFeedbackScreen').style.display = 'block';
+}
+
+function hideQuickFeedback() {
+document.getElementById('quickFeedbackScreen').style.display = 'none';
+document.getElementById('loginScreen').style.display = 'block';
+document.getElementById('quickFeedbackForm').reset();
+// Resetar valores dos sliders
+document.getElementById('qf_banheiro_value').textContent = '0.0';
+document.getElementById('qf_copa_value').textContent = '0.0';
+document.getElementById('qf_relax_value').textContent = '0.0';
+}
+
+function updateSliderValue(sliderId) {
+const slider = document.getElementById(sliderId);
+const valueSpan = document.getElementById(sliderId + '_value');
+valueSpan.textContent = parseFloat(slider.value).toFixed(1);
+}
+
+        // Inicializar status online/offline
+
+        // Handler do formulário de avaliação rápida
+        document.getElementById('quickFeedbackForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const andar = document.getElementById('qf_andar').value;
+            const banheiroTipo = document.querySelector('input[name="qf_banheiro_tipo"]:checked')?.value;
+            const banheiro = parseFloat(document.getElementById('qf_banheiro').value);
+            const copa = parseFloat(document.getElementById('qf_copa').value);
+            const relax = parseFloat(document.getElementById('qf_relax').value);
+            const comentarios = document.getElementById('qf_comentarios').value.trim();
+            const identificacao = document.getElementById('qf_identificacao').value.trim() || 'Anônimo';
+
+            // Validação: pelo menos uma avaliação deve ser maior que 0
+            if (banheiro === 0 && copa === 0 && relax === 0) {
+                showWarningModal('⚠️', 'Avaliação Necessária', 'Por favor, avalie pelo menos um dos ambientes (Banheiro, Copa ou Relax).');
+                return;
+            }
+
+            if (!banheiroTipo && banheiro > 0) {
+                showWarningModal('⚠️', 'Tipo de Banheiro', 'Por favor, selecione se é Masculino ou Feminino.');
+                return;
+            }
+
+            const agora = new Date();
+            const data = agora.toLocaleDateString('pt-BR');
+            const hora = agora.toLocaleTimeString('pt-BR');
+
+            const avaliacaoData = {
+                action: 'add',
+                data: data,
+                hora: hora,
+                andar: andar,
+                banheiro: banheiroTipo && banheiro > 0 ? `${banheiroTipo}-${banheiro.toFixed(1)}` : 'N/A',
+                copa: copa > 0 ? copa.toFixed(1) : 'N/A',
+                relax: relax > 0 ? relax.toFixed(1) : 'N/A',
+                comentarios: comentarios || 'Nenhum',
+                identificacao: identificacao
+            };
+
+            // Mostrar loading
+            showWarningModal('⏳', 'Enviando...', 'Aguarde enquanto enviamos sua avaliação.');
+
+            try {
+                if (!SCRIPT_URL_FEEDBACK) {
+                    throw new Error('URL do script de avaliação não configurada');
+                }
+
+                await fetch(SCRIPT_URL_FEEDBACK, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(avaliacaoData)
+                });
+
+                // Sucesso
+                closeWarningModal();
+                showWarningModal('✅', 'Avaliação Enviada!', 'Obrigado por contribuir com a qualidade do ambiente!');
+                
+                // Resetar formulário mas MANTER na tela de avaliação
+                document.getElementById('quickFeedbackForm').reset();
+                document.getElementById('qf_banheiro_value').textContent = '0.0';
+                document.getElementById('qf_copa_value').textContent = '0.0';
+                document.getElementById('qf_relax_value').textContent = '0.0';
+                
+                // Resetar sliders para 0
+                document.getElementById('qf_banheiro').value = 0;
+                document.getElementById('qf_copa').value = 0;
+                document.getElementById('qf_relax').value = 0;
+
+            } catch (error) {
+                closeWarningModal();
+                showWarningModal('❌', 'Erro ao Enviar', 'Não foi possível enviar a avaliação. Verifique sua conexão ou tente novamente.');
+                console.error('Erro:', error);
+            }
+        });
 
         // Inicializar status online/offline
         window.addEventListener('load', () => {
