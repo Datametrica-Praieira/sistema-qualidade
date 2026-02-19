@@ -2912,11 +2912,12 @@
 
         // Verificar configuração
         function checkConfiguration() {
-            // Usar localStorage SE existir, senão manter as URLs hardcoded
+            // URLs hardcoded - sempre funcionam!
+            // Apenas permite sobrescrever via localStorage se ADM quiser mudar
             const storedLimpeza = localStorage.getItem('googleScriptUrlLimpeza');
             const storedFeedback = localStorage.getItem('googleScriptUrlFeedback');
             
-            // Só sobrescrever se tiver valor no localStorage
+            // Só sobrescrever se tiver valor no localStorage (ADM configurou manualmente)
             if (storedLimpeza) {
                 SCRIPT_URL_LIMPEZA = storedLimpeza;
             }
@@ -2924,24 +2925,9 @@
                 SCRIPT_URL_FEEDBACK = storedFeedback;
             }
             
-            // Mostrar banner APENAS se NÃO tiver URLs (nem hardcoded nem localStorage)
-            if (!SCRIPT_URL_LIMPEZA || !SCRIPT_URL_FEEDBACK || 
-                SCRIPT_URL_LIMPEZA === 'COLE_AQUI_URL_SCRIPT_LIMPEZA' || 
-                SCRIPT_URL_FEEDBACK === 'COLE_AQUI_URL_SCRIPT_AVALIACAO') {
-                document.getElementById('configBanner').classList.add('show');
-                updateStatus(false);
-                
-                // Preencher campos se já tiver alguma URL
-                if (SCRIPT_URL_LIMPEZA && SCRIPT_URL_LIMPEZA !== 'COLE_AQUI_URL_SCRIPT_LIMPEZA') {
-                    document.getElementById('scriptUrlLimpeza').value = SCRIPT_URL_LIMPEZA;
-                }
-                if (SCRIPT_URL_FEEDBACK && SCRIPT_URL_FEEDBACK !== 'COLE_AQUI_URL_SCRIPT_AVALIACAO') {
-                    document.getElementById('scriptUrlFeedback').value = SCRIPT_URL_FEEDBACK;
-                }
-            } else {
-                document.getElementById('configBanner').classList.remove('show');
-                updateStatus(true);
-            }
+            // NUNCA mostrar banner - URLs já estão configuradas!
+            document.getElementById('configBanner').classList.remove('show');
+            updateStatus(true);
         }
 
         function saveScriptUrls() {
