@@ -2531,7 +2531,7 @@
         </div>
 
         <div class="footer">
-            © 2026 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
+            © 2025 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
             <a class="settings-link" id="settingsLink" onclick="showConfigBanner()" style="display:none;">⚙️ Configurações</a>
         </div>
     </div>
@@ -2912,19 +2912,30 @@
 
         // Verificar configuração
         function checkConfiguration() {
-            SCRIPT_URL_LIMPEZA = localStorage.getItem('googleScriptUrlLimpeza') || '';
-            SCRIPT_URL_FEEDBACK = localStorage.getItem('googleScriptUrlFeedback') || '';
+            // Usar localStorage SE existir, senão manter as URLs hardcoded
+            const storedLimpeza = localStorage.getItem('googleScriptUrlLimpeza');
+            const storedFeedback = localStorage.getItem('googleScriptUrlFeedback');
             
-            // Mostrar banner se faltam URLs
-            if (!SCRIPT_URL_LIMPEZA || !SCRIPT_URL_FEEDBACK) {
+            // Só sobrescrever se tiver valor no localStorage
+            if (storedLimpeza) {
+                SCRIPT_URL_LIMPEZA = storedLimpeza;
+            }
+            if (storedFeedback) {
+                SCRIPT_URL_FEEDBACK = storedFeedback;
+            }
+            
+            // Mostrar banner APENAS se NÃO tiver URLs (nem hardcoded nem localStorage)
+            if (!SCRIPT_URL_LIMPEZA || !SCRIPT_URL_FEEDBACK || 
+                SCRIPT_URL_LIMPEZA === 'COLE_AQUI_URL_SCRIPT_LIMPEZA' || 
+                SCRIPT_URL_FEEDBACK === 'COLE_AQUI_URL_SCRIPT_AVALIACAO') {
                 document.getElementById('configBanner').classList.add('show');
                 updateStatus(false);
                 
                 // Preencher campos se já tiver alguma URL
-                if (SCRIPT_URL_LIMPEZA) {
+                if (SCRIPT_URL_LIMPEZA && SCRIPT_URL_LIMPEZA !== 'COLE_AQUI_URL_SCRIPT_LIMPEZA') {
                     document.getElementById('scriptUrlLimpeza').value = SCRIPT_URL_LIMPEZA;
                 }
-                if (SCRIPT_URL_FEEDBACK) {
+                if (SCRIPT_URL_FEEDBACK && SCRIPT_URL_FEEDBACK !== 'COLE_AQUI_URL_SCRIPT_AVALIACAO') {
                     document.getElementById('scriptUrlFeedback').value = SCRIPT_URL_FEEDBACK;
                 }
             } else {
