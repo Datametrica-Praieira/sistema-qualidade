@@ -2240,7 +2240,7 @@
                                 🧹 Registros de Limpeza
                             </button>
                             <button class="andar-btn" id="btnHistoricoFeedback" onclick="showHistoricoFeedback()" style="flex:1;max-width:250px;">
-                                💭 Feedbacks Recebidos
+                                💭 Avaliações Recebidas
                             </button>
                         </div>
 
@@ -2273,6 +2273,14 @@
                                         <option value="3º">3º Andar</option>
                                         <option value="4º">4º Andar</option>
                                         <option value="5º">5º Andar</option>
+                                    </select>
+                                </div>
+
+                                <!-- ASG (só para limpeza) -->
+                                <div id="filtroASGDiv" style="display:none;">
+                                    <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">🧹 ASG:</label>
+                                    <select id="filtroASG" onchange="aplicarFiltros()" style="width:100%;padding:10px;border:2px solid #E5E5E5;border-radius:8px;">
+                                        <option value="todos">Todos os ASG</option>
                                     </select>
                                 </div>
 
@@ -2502,18 +2510,69 @@
                             <p>Ao clicar em "Resetar Senha", a senha voltará para: <strong>datametrica2026</strong></p>
                         </div>
 
-                        <!-- Reset de Limite de Feedback -->
-                        <div style="margin-top:40px;padding:25px;background:linear-gradient(135deg, #FFD93D 0%, #FFC700 100%);border-radius:15px;">
-                            <div style="font-size:20px;font-weight:800;color:#2C3E50;margin-bottom:15px;">
-                                🔄 RESETAR LIMITE DE FEEDBACK
+                        <!-- Excluir Registros por Período -->
+                        <div style="margin-top:40px;padding:25px;background:linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);border-radius:15px;">
+                            <div style="font-size:20px;font-weight:800;color:white;margin-bottom:15px;">
+                                🗑️ EXCLUIR REGISTROS POR PERÍODO
                             </div>
-                            <p style="color:#5A5A5A;margin-bottom:20px;font-size:15px;">
-                                Use esta função para permitir que um funcionário envie novamente feedback no mesmo mês.
+                            <p style="color:#fff;margin-bottom:20px;font-size:15px;opacity:0.95;">
+                                Remova registros antigos por mês e ano. Esta ação é permanente!
                             </p>
-                            <div style="display:flex;gap:10px;align-items:center;">
-                                <input type="text" id="matriculaResetFeedback" placeholder="Digite a matrícula" style="flex:1;padding:15px;border:2px solid #E5E5E5;border-radius:12px;font-size:16px;">
-                                <button onclick="resetarLimiteFeedback()" style="padding:15px 30px;background:#E63946;color:white;border:none;border-radius:12px;font-weight:700;cursor:pointer;white-space:nowrap;">
-                                    🔓 Resetar
+                            
+                            <div style="background:rgba(255,255,255,0.95);padding:20px;border-radius:12px;">
+                                <div style="margin-bottom:20px;">
+                                    <label style="display:block;font-weight:600;margin-bottom:10px;color:#2C3E50;">📊 Tipo de Registro:</label>
+                                    <div style="display:flex;gap:15px;">
+                                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 15px;background:#f8f9fa;border-radius:8px;border:2px solid #E5E5E5;">
+                                            <input type="radio" name="tipoExclusao" value="limpeza" checked onchange="atualizarContagemExclusao()">
+                                            <span style="font-weight:600;">🧹 Limpeza</span>
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 15px;background:#f8f9fa;border-radius:8px;border:2px solid #E5E5E5;">
+                                            <input type="radio" name="tipoExclusao" value="avaliacao" onchange="atualizarContagemExclusao()">
+                                            <span style="font-weight:600;">⭐ Avaliação</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
+                                    <div>
+                                        <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">📅 Mês:</label>
+                                        <select id="mesExclusao" onchange="atualizarContagemExclusao()" style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:8px;font-size:15px;">
+                                            <option value="">Selecione o mês</option>
+                                            <option value="01">Janeiro</option>
+                                            <option value="02">Fevereiro</option>
+                                            <option value="03">Março</option>
+                                            <option value="04">Abril</option>
+                                            <option value="05">Maio</option>
+                                            <option value="06">Junho</option>
+                                            <option value="07">Julho</option>
+                                            <option value="08">Agosto</option>
+                                            <option value="09">Setembro</option>
+                                            <option value="10">Outubro</option>
+                                            <option value="11">Novembro</option>
+                                            <option value="12">Dezembro</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">📆 Ano:</label>
+                                        <select id="anoExclusao" onchange="atualizarContagemExclusao()" style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:8px;font-size:15px;">
+                                            <option value="">Selecione o ano</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="avisoExclusao" style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;margin-bottom:15px;">
+                                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+                                        <span style="font-size:24px;">⚠️</span>
+                                        <strong style="color:#856404;">Esta ação não pode ser desfeita!</strong>
+                                    </div>
+                                    <p style="color:#856404;margin:5px 0 0 34px;font-size:14px;">
+                                        Total de registros a excluir: <strong id="totalExclusao">0</strong>
+                                    </p>
+                                </div>
+
+                                <button id="btnExcluir" onclick="confirmarExclusaoRegistros()" disabled style="width:100%;padding:15px;background:#dc3545;color:white;border:none;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;opacity:0.5;">
+                                    🗑️ Excluir Registros
                                 </button>
                             </div>
                         </div>
@@ -2523,7 +2582,7 @@
         </div>
 
         <div class="footer">
-            © 2026 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
+            © 2025 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
             <a class="settings-link" id="settingsLink" onclick="showConfigBanner()" style="display:none;">⚙️ Configurações</a>
         </div>
     </div>
@@ -3063,6 +3122,7 @@
                 loadEmployeeList();
             } else if (tabName === 'solicitacoes') {
                 loadResetRequestsList();
+                inicializarSeletorAnos();
             } else if (tabName === 'feedback') {
                 checkFeedbackEligibility();
             }
@@ -3305,17 +3365,127 @@
             // Reverter ordem para mostrar mais recente primeiro
             const reversedRecords = [...records].reverse();
             
-            recordsList.innerHTML = reversedRecords.map(record => `
-                <div class="record-card">
+            recordsList.innerHTML = reversedRecords.map((record, index) => {
+                const recordId = `record-${records.length - 1 - index}`;
+                const { data, hora } = formatarDataHora(record.Data, record.Hora);
+                
+                return `
+                <div class="record-card" style="position:relative;">
+                    <!-- Botões no canto superior direito -->
+                    <div style="position:absolute;top:10px;right:10px;display:flex;gap:5px;z-index:10;">
+                        <button onclick="toggleDetalhesLimpeza('${recordId}')" 
+                                style="background:#4CAF50;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:12px;transition:all 0.3s;opacity:0.6;"
+                                onmouseover="this.style.opacity='1'" 
+                                onmouseout="this.style.opacity='0.6'"
+                                title="Ver detalhes">
+                            👁️
+                        </button>
+                        <button onclick="confirmarExclusaoRegistroUnico('limpeza', ${records.length - 1 - index})" 
+                                style="background:#dc3545;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:11px;transition:all 0.3s;opacity:0.5;"
+                                onmouseover="this.style.opacity='1'" 
+                                onmouseout="this.style.opacity='0.5'"
+                                title="Excluir registro">
+                            🗑️
+                        </button>
+                    </div>
+                    
                     <div class="record-header">
                         <div class="record-name">👤 ${record.Nome}</div>
                         <div class="record-local">📍 ${record.Local}</div>
-                        <div class="record-time">${record.Data}<br>${record.Hora}</div>
+                        <div class="record-time">${data}<br>${hora}</div>
+                    </div>
+                    
+                    <!-- Detalhes expandíveis -->
+                    <div id="${recordId}" style="display:none;margin-top:15px;padding:15px;background:#f8f9fa;border-radius:8px;border-left:4px solid #4CAF50;">
+                        ${record.Observações && record.Observações !== 'Nenhuma' ? `
+                            <div style="margin-bottom:15px;">
+                                <strong style="color:#2C3E50;">📝 Observações:</strong>
+                                <p style="margin:5px 0 0 0;color:#5A5A5A;">${record.Observações}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div>
+                            <strong style="color:#2C3E50;">✅ Checklist de Limpeza:</strong>
+                            <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">
+                                ${(record.Vaso === 'Sim' || record.Vaso === true || record.Vaso === 'true' || record.Vaso === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Vaso Sanitário</div>` : ''}
+                                ${(record.Pia === 'Sim' || record.Pia === true || record.Pia === 'true' || record.Pia === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Pia</div>` : ''}
+                                ${(record.Cabine === 'Sim' || record.Cabine === true || record.Cabine === 'true' || record.Cabine === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Cabine</div>` : ''}
+                                ${(record['Chão Banheiro'] === 'Sim' || record['Chão Banheiro'] === true || record['Chão Banheiro'] === 'true' || record['Chão Banheiro'] === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Chão Banheiro</div>` : ''}
+                                ${(record.Papel === 'Sim' || record.Papel === true || record.Papel === 'true' || record.Papel === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Papel Higiênico</div>` : ''}
+                                ${(record.Sabonete === 'Sim' || record.Sabonete === true || record.Sabonete === 'true' || record.Sabonete === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Sabonete</div>` : ''}
+                                ${(record.Lixeira === 'Sim' || record.Lixeira === true || record.Lixeira === 'true' || record.Lixeira === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Lixeira</div>` : ''}
+                                ${(record.Espelho === 'Sim' || record.Espelho === true || record.Espelho === 'true' || record.Espelho === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Espelho</div>` : ''}
+                                ${(record.Porta === 'Sim' || record.Porta === true || record.Porta === 'true' || record.Porta === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Porta</div>` : ''}
+                                ${(record.Paredes === 'Sim' || record.Paredes === true || record.Paredes === 'true' || record.Paredes === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Paredes</div>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${record.Foto && record.Foto.trim() !== '' && record.Foto !== 'undefined' ? `
+                            <div style="margin-top:15px;">
+                                <strong style="color:#2C3E50;">📷 Foto do Local:</strong>
+                                <div style="margin-top:10px;text-align:center;">
+                                    <img src="${(() => {
+                                        // Extrair ID e usar formato que funciona
+                                        if (record.Foto.includes('drive.google.com')) {
+                                            const match = record.Foto.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                                            if (match && match[1]) {
+                                                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                                            }
+                                        }
+                                        return record.Foto;
+                                    })()}" 
+                                         style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;" 
+                                         alt="Foto da limpeza"
+                                         onerror="this.parentElement.innerHTML='<p style=color:#E63946>⚠️ Erro ao carregar. <a href=${record.Foto} target=_blank style=color:#4CAF50>Clique para ver no Drive</a></p>'"
+                                         onclick="window.open('${record.Foto}', '_blank')"
+                                         title="Clique para abrir no Drive">
+                                    <p style="margin-top:8px;font-size:13px;color:#666;">
+                                        <a href="${record.Foto}" target="_blank" style="color:#4CAF50;text-decoration:none;">
+                                            🔗 Abrir em tamanho real no Google Drive
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        ` : `<div style="margin-top:15px;color:#999;font-size:13px;font-style:italic;">Nenhuma foto disponível</div>`}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             
             updateStats(records);
+        }
+
+        function formatarDataHora(data, hora) {
+            // Se data já está no formato DD/MM/YYYY, usar direto
+            if (typeof data === 'string' && data.includes('/')) {
+                return { data: data, hora: hora || '' };
+            }
+            
+            // Se for objeto Date
+            if (data instanceof Date || (typeof data === 'string' && data.includes('T'))) {
+                const d = new Date(data);
+                const dia = String(d.getDate()).padStart(2, '0');
+                const mes = String(d.getMonth() + 1).padStart(2, '0');
+                const ano = d.getFullYear();
+                const horas = String(d.getHours()).padStart(2, '0');
+                const minutos = String(d.getMinutes()).padStart(2, '0');
+                
+                return {
+                    data: `${dia}/${mes}/${ano}`,
+                    hora: `${horas}:${minutos}`
+                };
+            }
+            
+            return { data: data || '', hora: hora || '' };
+        }
+
+        function toggleDetalhesLimpeza(recordId) {
+            const detalhes = document.getElementById(recordId);
+            if (detalhes.style.display === 'none') {
+                detalhes.style.display = 'block';
+            } else {
+                detalhes.style.display = 'none';
+            }
         }
 
         function updateStats(records) {
@@ -3819,6 +3989,22 @@
         // Carregar lista de funcionários no filtro
         // Função removida - filtro de funcionário foi removido
         // function carregarFuncionariosNoFiltro() {...}
+        
+        // Carregar apenas ASG no filtro de limpeza
+        function carregarASGNoFiltro() {
+            const select = document.getElementById('filtroASG');
+            select.innerHTML = '<option value="todos">Todos os ASG</option>';
+            
+            Object.entries(FUNCIONARIOS)
+                .filter(([_, data]) => data.funcao === 'ASG') // Apenas ASG
+                .sort((a, b) => a[1].nome.localeCompare(b[1].nome)) // Ordem alfabética
+                .forEach(([matricula, data]) => {
+                    const option = document.createElement('option');
+                    option.value = matricula;
+                    option.textContent = data.nome;
+                    select.appendChild(option);
+                });
+        }
 
         // Mostrar/esconder filtro de avaliação
         document.getElementById('filtroPeriodo')?.addEventListener('change', function() {
@@ -3848,10 +4034,10 @@
                 dadosFiltrados = filtrarPorPeriodo(dadosFiltrados, periodo);
             }
             
-            // Filtro por funcionário
-            const funcionario = document.getElementById('filtroFuncionario').value;
-            if (funcionario !== 'todos') {
-                dadosFiltrados = dadosFiltrados.filter(r => r.Matrícula === funcionario);
+            // Filtro por ASG
+            const asg = document.getElementById('filtroASG').value;
+            if (asg !== 'todos') {
+                dadosFiltrados = dadosFiltrados.filter(r => r.Matrícula === asg);
             }
             
             // Filtro por andar (extrair do local)
@@ -3978,6 +4164,7 @@
             document.getElementById('filtroPeriodo').value = 'todos';
             document.getElementById('filtroAndar').value = 'todos';
             document.getElementById('filtroAvaliacao').value = 'todos';
+            document.getElementById('filtroASG').value = 'todos';
             document.getElementById('dataInicio').value = '';
             document.getElementById('dataFim').value = '';
             document.getElementById('datasCustomizadas').style.display = 'none';
@@ -4123,11 +4310,14 @@
             document.getElementById('btnHistoricoLimpeza').classList.add('selected');
             document.getElementById('btnHistoricoFeedback').classList.remove('selected');
             document.getElementById('filtroAvaliacaoDiv').style.display = 'none'; // Esconder filtro de avaliação
+            document.getElementById('filtroASGDiv').style.display = 'block'; // Mostrar filtro de ASG
+            carregarASGNoFiltro(); // Carregar lista de ASG
             loadRecords();
         }
 
         function showHistoricoFeedback() {
             historicoAtual = 'feedback';
+            document.getElementById('filtroASGDiv').style.display = 'none'; // Esconder filtro de ASG
             document.getElementById('btnHistoricoFeedback').classList.add('selected');
             document.getElementById('btnHistoricoLimpeza').classList.remove('selected');
             loadFeedbackHistory();
@@ -4200,7 +4390,7 @@
             const stats = document.getElementById('stats');
             
             if (!feedbacks || feedbacks.length === 0) {
-                list.innerHTML = '<div class="empty-state"><h3>Nenhum feedback registrado ainda</h3></div>';
+                list.innerHTML = '<div class="empty-state"><h3>Nenhuma avaliação registrada ainda</h3></div>';
                 return;
             }
             
@@ -4216,7 +4406,7 @@
             stats.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-value">${total}</div>
-                    <div class="stat-label">Total de Feedbacks</div>
+                    <div class="stat-label">Total de Avaliações</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value">${total - anonimos}</div>
@@ -4229,7 +4419,9 @@
             `;
             
             // Lista de feedbacks
-            list.innerHTML = feedbacks.reverse().map(feedback => {
+            list.innerHTML = feedbacks.reverse().map((feedback, index) => {
+                const { data, hora } = formatarDataHora(feedback.Data, feedback.Hora);
+                
                 // Função para formatar nota com cor
                 const formatarNota = (nota) => {
                     const n = parseFloat(nota);
@@ -4243,22 +4435,25 @@
                 };
                 
                 return `
-                <div class="record-card">
+                <div class="record-card" style="position:relative;">
+                    <button onclick="confirmarExclusaoRegistroUnico('avaliacao', ${feedbacks.length - 1 - index})" 
+                            style="position:absolute;top:10px;right:10px;background:#dc3545;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:11px;transition:all 0.3s;z-index:10;opacity:0.5;"
+                            onmouseover="this.style.opacity='1'" 
+                            onmouseout="this.style.opacity='0.5'"
+                            title="Excluir esta avaliação">
+                        🗑️
+                    </button>
                     <div class="record-header">
                         <span class="record-badge">${feedback.Identificação || feedback['Identificação'] || 'Anônimo'}</span>
-                        <span class="record-date">${feedback.Data} - ${feedback.Hora}</span>
+                        <span class="record-date">${data} - ${hora}</span>
                     </div>
                     <div class="record-info">
                         <strong>Andar:</strong> ${feedback.Andar}<br>
                         ${feedback.Comentários && feedback.Comentários !== 'Nenhum' ? `<strong>Comentários:</strong> ${feedback.Comentários}` : ''}
                     </div>
                     <div class="record-details" style="margin-top:10px;padding:10px;background:#F8F9FA;border-radius:8px;font-size:13px;">
-                        <strong>Avaliações:</strong><br>
-                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' ? `🚻 Banheiro: ${feedback.Banheiro.includes('-') ? feedback.Banheiro.split('-')[0] + ' ' + formatarNota(feedback.Banheiro.split('-')[1]) : formatarNota(feedback.Banheiro)}` : ''}
-                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' && (feedback.Copa !== 'N/A' || feedback.Relax !== 'N/A') ? ' | ' : ''}
-                        ${feedback.Copa && feedback.Copa !== 'N/A' ? `☕ Copa: ${formatarNota(feedback.Copa)}` : ''}
-                        ${feedback.Copa && feedback.Copa !== 'N/A' && feedback.Relax !== 'N/A' ? ' | ' : ''}
-                        ${feedback.Relax && feedback.Relax !== 'N/A' ? `🛋️ Relax: ${formatarNota(feedback.Relax)}` : ''}
+                        <strong>Avaliação:</strong><br>
+                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' ? `🚻 Banheiro: ${feedback.Banheiro.includes('-') ? feedback.Banheiro.split('-')[0] + ' ' + formatarNota(feedback.Banheiro.split('-')[1]) : formatarNota(feedback.Banheiro)}` : 'Sem avaliação de banheiro'}
                     </div>
                 </div>
             `;
@@ -4266,30 +4461,332 @@
         }
 
         // Resetar limite de feedback
-        function resetarLimiteFeedback() {
-            const matricula = document.getElementById('matriculaResetFeedback').value.trim();
+//         function resetarLimiteFeedback() {
+//             const matricula = document.getElementById('matriculaResetFeedback').value.trim();
+//             
+//             if (!matricula) {
+//                 showWarningModal('⚠️', 'Matrícula Vazia', 'Por favor, digite a matrícula do funcionário.');
+//                 return;
+//             }
+//             
+//             if (!FUNCIONARIOS[matricula]) {
+//                 showWarningModal('❌', 'Matrícula Não Encontrada', 'A matrícula informada não existe no sistema.');
+//                 return;
+//             }
+//             
+//             const key = `feedback_${matricula}_date`;
+//             const hadLimit = localStorage.getItem(key) !== null;
+//             
+//             localStorage.removeItem(key);
+//             document.getElementById('matriculaResetFeedback').value = '';
+//             
+//             if (hadLimit) {
+//                 showWarningModal('✅', 'Limite Resetado!', `O funcionário ${FUNCIONARIOS[matricula].nome} agora pode enviar novo feedback.`);
+//             } else {
+//                 showWarningModal('ℹ️', 'Sem Limite', `O funcionário ${FUNCIONARIOS[matricula].nome} não tinha limite de feedback ativo.`);
+//             }
+//         }
+// 
+        // ============================================
+        // EXCLUSÃO DE REGISTROS POR PERÍODO
+        // ============================================
+        
+        // Inicializar anos disponíveis ao carregar solicitações
+        function inicializarSeletorAnos() {
+            const select = document.getElementById('anoExclusao');
+            const anoAtual = new Date().getFullYear();
             
-            if (!matricula) {
-                showWarningModal('⚠️', 'Matrícula Vazia', 'Por favor, digite a matrícula do funcionário.');
+            // Adicionar últimos 5 anos
+            for (let ano = anoAtual; ano >= anoAtual - 5; ano--) {
+                const option = document.createElement('option');
+                option.value = ano;
+                option.textContent = ano;
+                select.appendChild(option);
+            }
+        }
+
+        // Atualizar contagem de registros a excluir
+        async function atualizarContagemExclusao() {
+            const tipo = document.querySelector('input[name="tipoExclusao"]:checked').value;
+            const mes = document.getElementById('mesExclusao').value;
+            const ano = document.getElementById('anoExclusao').value;
+            
+            const aviso = document.getElementById('avisoExclusao');
+            const btnExcluir = document.getElementById('btnExcluir');
+            
+            if (!mes || !ano) {
+                aviso.style.display = 'none';
+                btnExcluir.disabled = true;
+                btnExcluir.style.opacity = '0.5';
+                btnExcluir.style.cursor = 'not-allowed';
                 return;
             }
             
-            if (!FUNCIONARIOS[matricula]) {
-                showWarningModal('❌', 'Matrícula Não Encontrada', 'A matrícula informada não existe no sistema.');
-                return;
+            // Buscar registros
+            let registros = [];
+            
+            try {
+                if (tipo === 'limpeza') {
+                    if (!SCRIPT_URL_LIMPEZA) {
+                        showWarningModal('⚠️', 'URL Não Configurada', 'Configure a URL do Google Apps Script para limpeza primeiro.');
+                        return;
+                    }
+                    const response = await fetch(`${SCRIPT_URL_LIMPEZA}?action=get`);
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        registros = result.data || [];
+                    }
+                } else {
+                    if (!SCRIPT_URL_FEEDBACK) {
+                        showWarningModal('⚠️', 'URL Não Configurada', 'Configure a URL do Google Apps Script para avaliação primeiro.');
+                        return;
+                    }
+                    const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        registros = result.data || [];
+                    }
+                }
+                
+                // Filtrar por mês e ano
+                const registrosFiltrados = registros.filter(r => {
+                    const data = r.Data || r.data;
+                    if (!data) return false;
+                    
+                    // Formato: DD/MM/YYYY
+                    const partes = data.split('/');
+                    if (partes.length !== 3) return false;
+                    
+                    const mesReg = partes[1];
+                    const anoReg = partes[2];
+                    
+                    return mesReg === mes && anoReg === ano;
+                });
+                
+                const total = registrosFiltrados.length;
+                document.getElementById('totalExclusao').textContent = total;
+                
+                if (total > 0) {
+                    aviso.style.display = 'block';
+                    btnExcluir.disabled = false;
+                    btnExcluir.style.opacity = '1';
+                    btnExcluir.style.cursor = 'pointer';
+                } else {
+                    aviso.style.display = 'block';
+                    btnExcluir.disabled = true;
+                    btnExcluir.style.opacity = '0.5';
+                    btnExcluir.style.cursor = 'not-allowed';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao contar registros:', error);
+                showWarningModal('❌', 'Erro', 'Não foi possível contar os registros.');
+            }
+        }
+
+        // Confirmar exclusão
+        function confirmarExclusaoRegistros() {
+            const tipo = document.querySelector('input[name="tipoExclusao"]:checked').value;
+            const mes = document.getElementById('mesExclusao').value;
+            const ano = document.getElementById('anoExclusao').value;
+            const total = document.getElementById('totalExclusao').textContent;
+            
+            const meses = {
+                '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril',
+                '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto',
+                '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
+            };
+            
+            const tipoNome = tipo === 'limpeza' ? 'Limpeza' : 'Avaliação';
+            const mesNome = meses[mes];
+            
+            const modal = document.getElementById('confirmModal');
+            modal.querySelector('.confirm-icon').textContent = '🗑️';
+            modal.querySelector('.confirm-icon').style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+            modal.querySelector('h2').textContent = 'Confirmar Exclusão';
+            modal.querySelector('p').innerHTML = `
+                <strong style="color:#dc3545;">⚠️ ATENÇÃO: Esta ação é IRREVERSÍVEL!</strong><br><br>
+                Você está prestes a excluir:<br>
+                <strong>${total} registro(s) de ${tipoNome}</strong><br>
+                Referente a: <strong>${mesNome} de ${ano}</strong><br><br>
+                Os dados serão permanentemente removidos do Google Sheets.<br><br>
+                Deseja continuar?
+            `;
+            modal.querySelector('.confirm-modal-buttons').innerHTML = `
+                <button class="btn-confirm-yes" style="background:#dc3545;" onclick="executarExclusaoRegistros()">🗑️ Sim, Excluir</button>
+                <button class="btn-confirm-no" onclick="cancelarExclusao()">❌ Cancelar</button>
+            `;
+            modal.classList.add('show');
+        }
+
+        // Executar exclusão
+        async function executarExclusaoRegistros() {
+            document.getElementById('confirmModal').classList.remove('show');
+            
+            const tipo = document.querySelector('input[name="tipoExclusao"]:checked').value;
+            const mes = document.getElementById('mesExclusao').value;
+            const ano = document.getElementById('anoExclusao').value;
+            
+            showWarningModal('⏳', 'Excluindo...', 'Aguarde enquanto os registros são removidos.');
+            
+            try {
+                const scriptUrl = tipo === 'limpeza' ? SCRIPT_URL_LIMPEZA : SCRIPT_URL_FEEDBACK;
+                
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'deleteByPeriod',
+                        mes: mes,
+                        ano: ano
+                    })
+                });
+                
+                closeWarningModal();
+                
+                showWarningModal('✅', 'Registros Excluídos!', `Os registros de ${mes}/${ano} foram removidos com sucesso.`);
+                
+                // Resetar form
+                document.getElementById('mesExclusao').value = '';
+                document.getElementById('anoExclusao').value = '';
+                document.getElementById('avisoExclusao').style.display = 'none';
+                document.getElementById('btnExcluir').disabled = true;
+                document.getElementById('btnExcluir').style.opacity = '0.5';
+                
+                // Recarregar histórico se estiver aberto
+                if (historicoAtual) {
+                    if (historicoAtual === 'limpeza' && tipo === 'limpeza') {
+                        loadRecords();
+                    } else if (historicoAtual === 'feedback' && tipo === 'avaliacao') {
+                        loadFeedbackHistory();
+                    }
+                }
+                
+            } catch (error) {
+                closeWarningModal();
+                console.error('Erro ao excluir registros:', error);
+                showWarningModal('❌', 'Erro', 'Não foi possível excluir os registros. Tente novamente.');
+            }
+        }
+
+        function cancelarExclusao() {
+            document.getElementById('confirmModal').classList.remove('show');
+            // Restaurar modal padrão
+            setTimeout(() => {
+                const modal = document.getElementById('confirmModal');
+                modal.querySelector('.confirm-icon').textContent = '🚪';
+                modal.querySelector('.confirm-icon').style.background = 'linear-gradient(135deg, #E63946 0%, #C41E3A 100%)';
+                modal.querySelector('h2').textContent = 'Confirmar Saída';
+                modal.querySelector('p').textContent = 'Você realmente deseja sair da sua conta?';
+                modal.querySelector('.confirm-modal-buttons').innerHTML = `
+                    <button class="btn-confirm-yes" onclick="confirmLogoutYes()">Sim, Sair</button>
+                    <button class="btn-confirm-no" onclick="confirmLogoutNo()">Não, Ficar</button>
+                `;
+            }, 300);
+        }
+
+        // ============================================
+        // EXCLUSÃO DE REGISTRO INDIVIDUAL
+        // ============================================
+        
+        let registroParaExcluir = null;
+        
+        function confirmarExclusaoRegistroUnico(tipo, indice) {
+            registroParaExcluir = { tipo, indice };
+            
+            const tipoNome = tipo === 'limpeza' ? 'registro de limpeza' : 'avaliação';
+            
+            const modal = document.getElementById('confirmModal');
+            modal.querySelector('.confirm-icon').textContent = '🗑️';
+            modal.querySelector('.confirm-icon').style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+            modal.querySelector('h2').textContent = 'Confirmar Exclusão';
+            modal.querySelector('p').innerHTML = `
+                <strong style="color:#dc3545;">⚠️ ATENÇÃO!</strong><br><br>
+                Você está prestes a excluir este ${tipoNome}.<br><br>
+                Esta ação é <strong>permanente</strong> e não pode ser desfeita.<br><br>
+                Deseja continuar?
+            `;
+            modal.querySelector('.confirm-modal-buttons').innerHTML = `
+                <button class="btn-confirm-yes" style="background:#dc3545;" onclick="executarExclusaoRegistroUnico()">🗑️ Sim, Excluir</button>
+                <button class="btn-confirm-no" onclick="cancelarExclusaoUnico()">❌ Cancelar</button>
+            `;
+            modal.classList.add('show');
+        }
+        
+        async function executarExclusaoRegistroUnico() {
+            document.getElementById('confirmModal').classList.remove('show');
+            
+            if (!registroParaExcluir) return;
+            
+            const { tipo, indice } = registroParaExcluir;
+            
+            showWarningModal('⏳', 'Excluindo...', 'Aguarde enquanto o registro é removido.');
+            
+            try {
+                const scriptUrl = tipo === 'limpeza' ? SCRIPT_URL_LIMPEZA : SCRIPT_URL_FEEDBACK;
+                
+                // Buscar o registro original (não o invertido) para pegar data/hora
+                let registro;
+                if (tipo === 'limpeza') {
+                    const response = await fetch(`${SCRIPT_URL_LIMPEZA}?action=get`);
+                    const result = await response.json();
+                    if (result.status === 'success' && result.data) {
+                        registro = result.data[indice];
+                    }
+                } else {
+                    const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
+                    const result = await response.json();
+                    if (result.status === 'success' && result.data) {
+                        registro = result.data[indice];
+                    }
+                }
+                
+                if (!registro) {
+                    throw new Error('Registro não encontrado');
+                }
+                
+                // Enviar para deletar por data/hora específica
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'deleteByRow',
+                        rowIndex: indice + 2 // +2 porque: +1 para Sheet 1-indexed, +1 para pular cabeçalho
+                    })
+                });
+                
+                closeWarningModal();
+                
+                showWarningModal('✅', 'Registro Excluído!', 'O registro foi removido com sucesso.');
+                
+                // Recarregar histórico
+                setTimeout(() => {
+                    closeWarningModal();
+                    if (tipo === 'limpeza') {
+                        loadRecords();
+                    } else {
+                        loadFeedbackHistory();
+                    }
+                }, 1500);
+                
+            } catch (error) {
+                closeWarningModal();
+                console.error('Erro ao excluir registro:', error);
+                showWarningModal('❌', 'Erro', 'Não foi possível excluir o registro. Tente novamente.');
             }
             
-            const key = `feedback_${matricula}_date`;
-            const hadLimit = localStorage.getItem(key) !== null;
-            
-            localStorage.removeItem(key);
-            document.getElementById('matriculaResetFeedback').value = '';
-            
-            if (hadLimit) {
-                showWarningModal('✅', 'Limite Resetado!', `O funcionário ${FUNCIONARIOS[matricula].nome} agora pode enviar novo feedback.`);
-            } else {
-                showWarningModal('ℹ️', 'Sem Limite', `O funcionário ${FUNCIONARIOS[matricula].nome} não tinha limite de feedback ativo.`);
-            }
+            registroParaExcluir = null;
+        }
+        
+        function cancelarExclusaoUnico() {
+            registroParaExcluir = null;
+            cancelarExclusao();
         }
 
         // ============================================
@@ -4476,18 +4973,35 @@
 
             // Identificar tendências por andar
             Object.entries(porAndar).forEach(([andar, avs]) => {
+                console.log(`Analisando ${andar}:`, avs);
+                
                 // Extrair notas dos campos (formato: "Masculino-4.5" ou "3.2")
                 const notasBanheiro = avs
-                    .map(a => parseFloat(a.banheiro?.split('-')[1] || a.banheiro))
-                    .filter(n => !isNaN(n) && n > 0);
+                    .map(a => {
+                        if (!a.banheiro) return NaN;
+                        const nota = a.banheiro.includes('-') 
+                            ? parseFloat(a.banheiro.split('-')[1]) 
+                            : parseFloat(a.banheiro);
+                        console.log(`  Banheiro de ${andar}:`, a.banheiro, '→', nota);
+                        return nota;
+                    })
+                    .filter(n => !isNaN(n) && n >= 0 && n <= 5);
                 
                 const notasCopa = avs
-                    .map(a => parseFloat(a.copa))
-                    .filter(n => !isNaN(n) && n > 0);
+                    .map(a => {
+                        const nota = parseFloat(a.copa);
+                        console.log(`  Copa de ${andar}:`, a.copa, '→', nota);
+                        return nota;
+                    })
+                    .filter(n => !isNaN(n) && n >= 0 && n <= 5);
                 
                 const notasRelax = avs
-                    .map(a => parseFloat(a.relax))
-                    .filter(n => !isNaN(n) && n > 0);
+                    .map(a => {
+                        const nota = parseFloat(a.relax);
+                        console.log(`  Relax de ${andar}:`, a.relax, '→', nota);
+                        return nota;
+                    })
+                    .filter(n => !isNaN(n) && n >= 0 && n <= 5);
 
                 // Calcular médias
                 const mediaBanheiro = notasBanheiro.length > 0 
@@ -4567,23 +5081,46 @@
             // Estatísticas gerais
             const todasNotas = [];
             feedbacks.forEach(f => {
-                const notaBanheiro = parseFloat(f.banheiro?.split('-')[1] || f.banheiro);
+                // Extrair nota do banheiro (formato: "Masculino-4.5" ou "4.5")
+                let notaBanheiro = 0;
+                if (f.banheiro && typeof f.banheiro === 'string') {
+                    if (f.banheiro.includes('-')) {
+                        notaBanheiro = parseFloat(f.banheiro.split('-')[1]);
+                    } else {
+                        notaBanheiro = parseFloat(f.banheiro);
+                    }
+                }
+                
+                // Extrair notas de copa e relax
                 const notaCopa = parseFloat(f.copa);
                 const notaRelax = parseFloat(f.relax);
                 
-                if (!isNaN(notaBanheiro) && notaBanheiro > 0) todasNotas.push(notaBanheiro);
-                if (!isNaN(notaCopa) && notaCopa > 0) todasNotas.push(notaCopa);
-                if (!isNaN(notaRelax) && notaRelax > 0) todasNotas.push(notaRelax);
+                // IMPORTANTE: Só aceitar notas válidas (0-5)
+                if (!isNaN(notaBanheiro) && notaBanheiro >= 0 && notaBanheiro <= 5) {
+                    todasNotas.push(notaBanheiro);
+                }
+                if (!isNaN(notaCopa) && notaCopa >= 0 && notaCopa <= 5) {
+                    todasNotas.push(notaCopa);
+                }
+                if (!isNaN(notaRelax) && notaRelax >= 0 && notaRelax <= 5) {
+                    todasNotas.push(notaRelax);
+                }
             });
+
+            console.log('📊 Todas as notas coletadas:', todasNotas);
 
             analise.estatisticas.totalAvaliacoes = feedbacks.length;
             analise.estatisticas.totalNotas = todasNotas.length;
             analise.estatisticas.mediaGeral = todasNotas.length > 0 
                 ? (todasNotas.reduce((a, b) => a + b) / todasNotas.length).toFixed(2)
                 : 'N/A';
-            analise.estatisticas.andarMaisAvaliado = Object.keys(porAndar).reduce((a, b) => 
-                porAndar[a].length > porAndar[b].length ? a : b
-            , 'N/A');
+            
+            // Verificar se há andares antes de fazer reduce
+            const andares = Object.keys(porAndar);
+            analise.estatisticas.andarMaisAvaliado = andares.length > 0
+                ? andares.reduce((a, b) => porAndar[a].length > porAndar[b].length ? a : b)
+                : 'N/A';
+            
             analise.estatisticas.avaliacoesAnonimas = feedbacks.filter(
                 f => f.identificacao === 'Anônimo'
             ).length;
