@@ -2262,14 +2262,6 @@
                                     </select>
                                 </div>
                                 
-                                <!-- Funcionário -->
-                                <div>
-                                    <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">👤 Funcionário:</label>
-                                    <select id="filtroFuncionario" onchange="aplicarFiltros()" style="width:100%;padding:10px;border:2px solid #E5E5E5;border-radius:8px;">
-                                        <option value="todos">Todos</option>
-                                    </select>
-                                </div>
-                                
                                 <!-- Andar -->
                                 <div>
                                     <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">🏢 Andar:</label>
@@ -2286,13 +2278,13 @@
 
                                 <!-- Avaliação (só para feedbacks) -->
                                 <div id="filtroAvaliacaoDiv" style="display:none;">
-                                    <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">⭐ Avaliação:</label>
+                                    <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">📊 Avaliação Média:</label>
                                     <select id="filtroAvaliacao" onchange="aplicarFiltros()" style="width:100%;padding:10px;border:2px solid #E5E5E5;border-radius:8px;">
-                                        <option value="todos">Todas</option>
-                                        <option value="5">⭐⭐⭐⭐⭐ (5 estrelas)</option>
-                                        <option value="4">⭐⭐⭐⭐ (4 estrelas)</option>
-                                        <option value="3">⭐⭐⭐ (3 estrelas)</option>
-                                        <option value="baixo">⭐⭐ ou menos (crítico)</option>
+                                        <option value="todos">Todas as avaliações</option>
+                                        <option value="5">🟢 Excelente (4.5 - 5.0)</option>
+                                        <option value="4">🟢 Bom (3.5 - 4.4)</option>
+                                        <option value="3">🟡 Regular (2.5 - 3.4)</option>
+                                        <option value="baixo">🔴 Ruim (0 - 2.4)</option>
                                     </select>
                                 </div>
                             </div>
@@ -3274,7 +3266,7 @@
                     const records = result.data;
                     dadosOriginais = records; // Guardar para filtros
                     tipoHistoricoAtual = 'limpeza';
-                    carregarFuncionariosNoFiltro();
+                    // carregarFuncionariosNoFiltro(); // removido
                     displayRecords(records);
                 } else {
                     throw new Error('Erro ao carregar dados');
@@ -3348,7 +3340,18 @@
             const list = document.getElementById('employeeList');
             const count = document.getElementById('employeeCount');
             
-            const employees = Object.entries(FUNCIONARIOS).sort((a, b) => a[1].nome.localeCompare(b[1].nome));
+            const employees = Object.entries(FUNCIONARIOS).sort((a, b) => {
+                // Ordenar por função primeiro (ADM antes de ASG)
+                const funcaoA = a[1].funcao || 'ASG';
+                const funcaoB = b[1].funcao || 'ASG';
+                
+                if (funcaoA !== funcaoB) {
+                    return funcaoA === 'ADM' ? -1 : 1;
+                }
+                
+                // Se mesma função, ordenar por nome
+                return a[1].nome.localeCompare(b[1].nome);
+            });
             
             count.textContent = `Total de Funcionários: ${employees.length}`;
             
@@ -3814,17 +3817,8 @@
         let tipoHistoricoAtual = 'limpeza';
 
         // Carregar lista de funcionários no filtro
-        function carregarFuncionariosNoFiltro() {
-            const select = document.getElementById('filtroFuncionario');
-            select.innerHTML = '<option value="todos">Todos os funcionários</option>';
-            
-            Object.entries(FUNCIONARIOS).forEach(([matricula, data]) => {
-                const option = document.createElement('option');
-                option.value = matricula;
-                option.textContent = `${data.nome} (${matricula})`;
-                select.appendChild(option);
-            });
-        }
+        // Função removida - filtro de funcionário foi removido
+        // function carregarFuncionariosNoFiltro() {...}
 
         // Mostrar/esconder filtro de avaliação
         document.getElementById('filtroPeriodo')?.addEventListener('change', function() {
@@ -3878,14 +3872,6 @@
                 dadosFiltrados = filtrarPorPeriodo(dadosFiltrados, periodo);
             }
             
-            // Filtro por funcionário
-            const funcionario = document.getElementById('filtroFuncionario').value;
-            if (funcionario !== 'todos' && funcionario !== 'Anônimo') {
-                dadosFiltrados = dadosFiltrados.filter(f => f.Matrícula === funcionario);
-            } else if (funcionario === 'Anônimo') {
-                dadosFiltrados = dadosFiltrados.filter(f => f.Matrícula === 'Anônimo' || f.Nome === 'Anônimo');
-            }
-            
             // Filtro por andar
             const andar = document.getElementById('filtroAndar').value;
             if (andar !== 'todos') {
@@ -3898,12 +3884,22 @@
                 if (avaliacao === 'baixo') {
                     dadosFiltrados = dadosFiltrados.filter(f => {
                         const media = calcularMediaFeedback(f);
-                        return media <= 2;
+                        return media < 2.5;
                     });
-                } else {
+                } else if (avaliacao === '3') {
                     dadosFiltrados = dadosFiltrados.filter(f => {
                         const media = calcularMediaFeedback(f);
-                        return Math.round(media) === parseInt(avaliacao);
+                        return media >= 2.5 && media < 3.5;
+                    });
+                } else if (avaliacao === '4') {
+                    dadosFiltrados = dadosFiltrados.filter(f => {
+                        const media = calcularMediaFeedback(f);
+                        return media >= 3.5 && media < 4.5;
+                    });
+                } else if (avaliacao === '5') {
+                    dadosFiltrados = dadosFiltrados.filter(f => {
+                        const media = calcularMediaFeedback(f);
+                        return media >= 4.5;
                     });
                 }
             }
@@ -3955,21 +3951,31 @@
         }
 
         function calcularMediaFeedback(feedback) {
-            const notas = [
-                feedback.Vaso || 0,
-                feedback.Pia || 0,
-                feedback.Cabine || 0,
-                feedback['Chão Banheiro'] || 0,
-                feedback.Papel || 0,
-                feedback.Sabonete || 0
-            ].filter(n => n > 0);
+            const notas = [];
+            
+            // Banheiro (formato: "Masculino-4.5" ou "Feminino-3.2")
+            if (feedback.Banheiro && feedback.Banheiro !== 'N/A') {
+                const notaBanheiro = parseFloat(feedback.Banheiro.split('-')[1] || feedback.Banheiro);
+                if (!isNaN(notaBanheiro)) notas.push(notaBanheiro);
+            }
+            
+            // Copa (formato: "3.2")
+            if (feedback.Copa && feedback.Copa !== 'N/A') {
+                const notaCopa = parseFloat(feedback.Copa);
+                if (!isNaN(notaCopa)) notas.push(notaCopa);
+            }
+            
+            // Relax (formato: "5.0")
+            if (feedback.Relax && feedback.Relax !== 'N/A') {
+                const notaRelax = parseFloat(feedback.Relax);
+                if (!isNaN(notaRelax)) notas.push(notaRelax);
+            }
             
             return notas.length > 0 ? notas.reduce((a, b) => a + b) / notas.length : 0;
         }
 
         function limparFiltros() {
             document.getElementById('filtroPeriodo').value = 'todos';
-            document.getElementById('filtroFuncionario').value = 'todos';
             document.getElementById('filtroAndar').value = 'todos';
             document.getElementById('filtroAvaliacao').value = 'todos';
             document.getElementById('dataInicio').value = '';
@@ -4147,14 +4153,37 @@
                 const result = await response.json();
                 
                 if (result.status === 'success' && result.data) {
-                    const feedbacks = result.data;
+                    // Log dos dados recebidos para debug
+                    console.log('📥 Dados recebidos do Google Sheets:', result.data);
+                    
+                    // Normalizar dados (garantir que os campos estão corretos)
+                    const feedbacks = result.data.map(row => {
+                        console.log('📋 Linha original:', row);
+                        
+                        // Criar objeto normalizado
+                        const normalized = {
+                            Data: row['Data'] || row.Data || '',
+                            Hora: row['Hora'] || row.Hora || '',
+                            Andar: row['Andar'] || row.Andar || '',
+                            Banheiro: row['Banheiro'] || row.Banheiro || 'N/A',
+                            Copa: row['Copa'] || row.Copa || 'N/A',
+                            Relax: row['Relax'] || row.Relax || 'N/A',
+                            Comentários: row['Comentários'] || row.Comentarios || row.comentarios || '',
+                            Identificação: row['Identificação'] || row.Identificacao || row.identificacao || 'Anônimo'
+                        };
+                        
+                        console.log('✅ Normalizado:', normalized);
+                        return normalized;
+                    });
+                    
                     dadosOriginais = feedbacks; // Guardar para filtros
                     tipoHistoricoAtual = 'feedback';
-                    carregarFuncionariosNoFiltro();
+                    // carregarFuncionariosNoFiltro(); // removido
                     document.getElementById('filtroAvaliacaoDiv').style.display = 'block'; // Mostrar filtro de avaliação
                     displayFeedbacks(feedbacks);
                 }
             } catch (error) {
+                console.error('❌ Erro ao carregar feedbacks:', error);
                 document.getElementById('recordsList').innerHTML = `
                     <div class="empty-state">
                         <h3>❌ Erro ao carregar feedbacks</h3>
@@ -4200,7 +4229,20 @@
             `;
             
             // Lista de feedbacks
-            list.innerHTML = feedbacks.reverse().map(feedback => `
+            list.innerHTML = feedbacks.reverse().map(feedback => {
+                // Função para formatar nota com cor
+                const formatarNota = (nota) => {
+                    const n = parseFloat(nota);
+                    if (isNaN(n)) return 'N/A';
+                    let cor = '';
+                    if (n >= 4.5) cor = '🟢';
+                    else if (n >= 3.5) cor = '🟢';
+                    else if (n >= 2.5) cor = '🟡';
+                    else cor = '🔴';
+                    return `${cor} ${n.toFixed(1)}`;
+                };
+                
+                return `
                 <div class="record-card">
                     <div class="record-header">
                         <span class="record-badge">${feedback.Identificação || feedback['Identificação'] || 'Anônimo'}</span>
@@ -4212,14 +4254,15 @@
                     </div>
                     <div class="record-details" style="margin-top:10px;padding:10px;background:#F8F9FA;border-radius:8px;font-size:13px;">
                         <strong>Avaliações:</strong><br>
-                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' ? `🚻 Banheiro: ${feedback.Banheiro}` : ''}
+                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' ? `🚻 Banheiro: ${feedback.Banheiro.includes('-') ? feedback.Banheiro.split('-')[0] + ' ' + formatarNota(feedback.Banheiro.split('-')[1]) : formatarNota(feedback.Banheiro)}` : ''}
                         ${feedback.Banheiro && feedback.Banheiro !== 'N/A' && (feedback.Copa !== 'N/A' || feedback.Relax !== 'N/A') ? ' | ' : ''}
-                        ${feedback.Copa && feedback.Copa !== 'N/A' ? `☕ Copa: ${feedback.Copa}⭐` : ''}
+                        ${feedback.Copa && feedback.Copa !== 'N/A' ? `☕ Copa: ${formatarNota(feedback.Copa)}` : ''}
                         ${feedback.Copa && feedback.Copa !== 'N/A' && feedback.Relax !== 'N/A' ? ' | ' : ''}
-                        ${feedback.Relax && feedback.Relax !== 'N/A' ? `🛋️ Relax: ${feedback.Relax}⭐` : ''}
+                        ${feedback.Relax && feedback.Relax !== 'N/A' ? `🛋️ Relax: ${formatarNota(feedback.Relax)}` : ''}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         // Resetar limite de feedback
@@ -4328,58 +4371,87 @@
         // ============================================
         
         async function gerarAnaliseIA() {
+            console.log('🔍 Iniciando análise IA...');
+            
             document.getElementById('analiseLoading').style.display = 'block';
             document.getElementById('analiseResults').style.display = 'none';
 
-            // Simular processamento (em produção, seria uma chamada para API de IA)
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Simular processamento
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Buscar avaliações do Google Sheets
             let feedbacks = [];
             
             try {
-                if (SCRIPT_URL_FEEDBACK) {
-                    const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
-                    const data = await response.json();
-                    
-                    if (data.status === 'success' && data.data) {
-                        feedbacks = data.data.map(row => ({
-                            data: row['Data'],
-                            hora: row['Hora'],
-                            andar: row['Andar'],
-                            banheiro: row['Banheiro'],
-                            copa: row['Copa'],
-                            relax: row['Relax'],
-                            comentarios: row['Comentários'],
-                            identificacao: row['Identificação']
-                        }));
-                    }
+                console.log('📡 Buscando avaliações do Google Sheets...');
+                
+                if (!SCRIPT_URL_FEEDBACK) {
+                    throw new Error('URL do Google Apps Script não configurada');
+                }
+                
+                const url = `${SCRIPT_URL_FEEDBACK}?action=get&t=${Date.now()}`;
+                console.log('URL:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Data received:', data);
+                
+                if (data.status === 'success' && data.data && data.data.length > 0) {
+                    feedbacks = data.data.map(row => ({
+                        data: row['Data'] || row.Data,
+                        hora: row['Hora'] || row.Hora,
+                        andar: row['Andar'] || row.Andar,
+                        banheiro: row['Banheiro'] || row.Banheiro,
+                        copa: row['Copa'] || row.Copa,
+                        relax: row['Relax'] || row.Relax,
+                        comentarios: row['Comentários'] || row.Comentarios || row.comentarios,
+                        identificacao: row['Identificação'] || row.Identificacao || row.identificacao || 'Anônimo'
+                    }));
+                    console.log('✅ Feedbacks processados:', feedbacks.length);
+                } else {
+                    console.log('⚠️ Nenhum dado retornado');
                 }
             } catch (error) {
-                console.error('Erro ao buscar avaliações:', error);
-                // Se falhar, tenta localStorage como fallback
-                feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+                console.error('❌ Erro ao buscar avaliações:', error);
+                // Fallback para localStorage
+                const localData = localStorage.getItem('feedbacks');
+                if (localData) {
+                    feedbacks = JSON.parse(localData);
+                    console.log('📦 Usando localStorage, feedbacks:', feedbacks.length);
+                }
             }
 
             // Se não tiver dados, mostrar mensagem
-            if (feedbacks.length === 0) {
+            if (!feedbacks || feedbacks.length === 0) {
+                console.log('⚠️ Sem dados para análise');
                 document.getElementById('analiseLoading').style.display = 'none';
                 document.getElementById('analiseResults').style.display = 'block';
-                document.getElementById('tendencias').innerHTML = '<p style="color:#999;">⚠️ Nenhuma avaliação encontrada. Aguarde até que avaliações sejam enviadas.</p>';
+                document.getElementById('tendencias').innerHTML = '<div style="padding:20px;text-align:center;color:#999;"><h3>⚠️ Nenhuma avaliação encontrada</h3><p>Aguarde até que avaliações sejam enviadas.</p></div>';
                 document.getElementById('problemas').innerHTML = '';
                 document.getElementById('sugestoes').innerHTML = '';
                 document.getElementById('estatisticas').innerHTML = '';
                 return;
             }
 
+            console.log('🤖 Processando análise...');
+            
             // Análise de tendências
             const analise = analisarDados(feedbacks);
+            console.log('📊 Análise concluída:', analise);
 
             // Exibir resultados
             exibirAnalise(analise);
 
             document.getElementById('analiseLoading').style.display = 'none';
             document.getElementById('analiseResults').style.display = 'block';
+            
+            console.log('✅ Análise exibida com sucesso!');
         }
 
         function analisarDados(feedbacks) {
