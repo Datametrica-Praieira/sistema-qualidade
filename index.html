@@ -4177,7 +4177,12 @@
             
             // Estatísticas
             const total = feedbacks.length;
-            const anonimos = feedbacks.filter(f => f.Matrícula === 'Anônimo' || f.Nome === 'Anônimo').length;
+            const anonimos = feedbacks.filter(f => 
+                f.Identificação === 'Anônimo' || 
+                f['Identificação'] === 'Anônimo' ||
+                !f.Identificação ||
+                !f['Identificação']
+            ).length;
             
             stats.innerHTML = `
                 <div class="stat-card">
@@ -4198,24 +4203,21 @@
             list.innerHTML = feedbacks.reverse().map(feedback => `
                 <div class="record-card">
                     <div class="record-header">
-                        <span class="record-badge">${feedback.Nome || 'Anônimo'}</span>
+                        <span class="record-badge">${feedback.Identificação || feedback['Identificação'] || 'Anônimo'}</span>
                         <span class="record-date">${feedback.Data} - ${feedback.Hora}</span>
                     </div>
                     <div class="record-info">
                         <strong>Andar:</strong> ${feedback.Andar}<br>
                         ${feedback.Comentários && feedback.Comentários !== 'Nenhum' ? `<strong>Comentários:</strong> ${feedback.Comentários}` : ''}
                     </div>
-                    ${feedback.Vaso ? `
                     <div class="record-details" style="margin-top:10px;padding:10px;background:#F8F9FA;border-radius:8px;font-size:13px;">
-                        <strong>Avaliações:</strong> 
-                        Vaso: ${feedback.Vaso}⭐ | 
-                        Pia: ${feedback.Pia}⭐ | 
-                        Cabine: ${feedback.Cabine}⭐ | 
-                        Chão Banheiro: ${feedback['Chão Banheiro']}⭐ | 
-                        Papel: ${feedback.Papel}⭐ | 
-                        Sabonete: ${feedback.Sabonete}⭐
+                        <strong>Avaliações:</strong><br>
+                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' ? `🚻 Banheiro: ${feedback.Banheiro}` : ''}
+                        ${feedback.Banheiro && feedback.Banheiro !== 'N/A' && (feedback.Copa !== 'N/A' || feedback.Relax !== 'N/A') ? ' | ' : ''}
+                        ${feedback.Copa && feedback.Copa !== 'N/A' ? `☕ Copa: ${feedback.Copa}⭐` : ''}
+                        ${feedback.Copa && feedback.Copa !== 'N/A' && feedback.Relax !== 'N/A' ? ' | ' : ''}
+                        ${feedback.Relax && feedback.Relax !== 'N/A' ? `🛋️ Relax: ${feedback.Relax}⭐` : ''}
                     </div>
-                    ` : ''}
                 </div>
             `).join('');
         }
@@ -4332,9 +4334,43 @@
             // Simular processamento (em produção, seria uma chamada para API de IA)
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Coletar dados
-            const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-            const funcionarios = Object.values(FUNCIONARIOS);
+            // Buscar avaliações do Google Sheets
+            let feedbacks = [];
+            
+            try {
+                if (SCRIPT_URL_FEEDBACK) {
+                    const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success' && data.data) {
+                        feedbacks = data.data.map(row => ({
+                            data: row['Data'],
+                            hora: row['Hora'],
+                            andar: row['Andar'],
+                            banheiro: row['Banheiro'],
+                            copa: row['Copa'],
+                            relax: row['Relax'],
+                            comentarios: row['Comentários'],
+                            identificacao: row['Identificação']
+                        }));
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao buscar avaliações:', error);
+                // Se falhar, tenta localStorage como fallback
+                feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            }
+
+            // Se não tiver dados, mostrar mensagem
+            if (feedbacks.length === 0) {
+                document.getElementById('analiseLoading').style.display = 'none';
+                document.getElementById('analiseResults').style.display = 'block';
+                document.getElementById('tendencias').innerHTML = '<p style="color:#999;">⚠️ Nenhuma avaliação encontrada. Aguarde até que avaliações sejam enviadas.</p>';
+                document.getElementById('problemas').innerHTML = '';
+                document.getElementById('sugestoes').innerHTML = '';
+                document.getElementById('estatisticas').innerHTML = '';
+                return;
+            }
 
             // Análise de tendências
             const analise = analisarDados(feedbacks);
