@@ -644,6 +644,29 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             position: relative;
             overflow: hidden;
+            animation: slideInLeft 0.4s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .record-card.deleting {
+            animation: fadeOutLeft 0.3s ease forwards;
+        }
+
+        @keyframes fadeOutLeft {
+            to {
+                opacity: 0;
+                transform: translateX(-30px) scale(0.95);
+            }
         }
 
         .record-card::before {
@@ -2582,7 +2605,7 @@
         </div>
 
         <div class="footer">
-            © 2026 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
+            © 2025 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
             <a class="settings-link" id="settingsLink" onclick="showConfigBanner()" style="display:none;">⚙️ Configurações</a>
         </div>
     </div>
@@ -3196,7 +3219,7 @@
             const local = document.getElementById('local').value;
             
             if (!photoData) {
-                alert('Por favor, tire uma foto do funcionário!');
+                showToast('Foto Obrigatória', 'Por favor, tire uma foto do funcionário!', 'warning');
                 return;
             }
             
@@ -3211,7 +3234,7 @@
             
             // Verificar se pelo menos 1 item foi marcado
             if (checklistItems.length === 0) {
-                alert('Por favor, marque pelo menos um item do checklist!');
+                showToast('Checklist Vazio', 'Por favor, marque pelo menos um item do checklist!', 'warning');
                 return;
             }
             
@@ -3229,8 +3252,8 @@
                 hora: now.toLocaleTimeString('pt-BR')
             };
             
-            // Mostrar loading
-            document.getElementById('submitLoading').classList.add('show');
+            // Mostrar loading overlay
+            showLoading();
             document.getElementById('submitBtn').disabled = true;
             
             try {
@@ -3245,7 +3268,9 @@
                 });
                 
                 // No-cors mode não permite ler a resposta, então assumimos sucesso
+                hideLoading();
                 showSuccessModal();
+                showToast('Limpeza Registrada', 'Registro enviado com sucesso!', 'success');
                 
                 // Limpar formulário (mantém nome)
                 document.getElementById('local').value = '';
@@ -3269,9 +3294,9 @@
                 }
                 
             } catch (error) {
-                alert('Erro ao enviar dados: ' + error.message);
+                hideLoading();
+                showToast('Erro ao Enviar', 'Não foi possível enviar os dados: ' + error.message, 'error');
             } finally {
-                document.getElementById('submitLoading').classList.remove('show');
                 document.getElementById('submitBtn').disabled = false;
             }
         });
@@ -3367,14 +3392,20 @@
             
             recordsList.innerHTML = reversedRecords.map((record, index) => {
                 const recordId = `record-${records.length - 1 - index}`;
+                const originalIndex = records.length - 1 - index; // Índice original antes do reverse
+                
+                // DEBUG: Ver EXATAMENTE o que vem do servidor
+                console.log('🔍 REGISTRO COMPLETO:', record);
+                console.log('📅 Campo Data:', record.Data, '(tipo:', typeof record.Data, ')');
+                console.log('🕐 Campo Hora:', record.Hora, '(tipo:', typeof record.Hora, ')');
+                
                 const { data, hora } = formatarDataHora(record.Data, record.Hora);
+                
+                console.log('✅ RESULTADO formatarDataHora:', { data, hora });
                 
                 // Parse checklist (vem como texto separado por ;)
                 const checklistText = record.Checklist || record.checklist || '';
                 const checklistItems = checklistText.split(';').map(item => item.trim()).filter(item => item);
-                
-                console.log('📋 Checklist recebido:', checklistText);
-                console.log('✅ Itens parseados:', checklistItems);
                 
                 return `
                 <div class="record-card" style="position:relative;">
@@ -3387,7 +3418,7 @@
                                 title="Ver detalhes">
                             👁️
                         </button>
-                        <button onclick="confirmarExclusaoRegistroUnico('limpeza', ${records.length - 1 - index})" 
+                        <button onclick="confirmarExclusaoRegistroUnico('limpeza', ${originalIndex})" 
                                 style="background:#dc3545;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:11px;transition:all 0.3s;opacity:0.5;"
                                 onmouseover="this.style.opacity='1'" 
                                 onmouseout="this.style.opacity='0.5'"
@@ -3439,22 +3470,25 @@
                                                 console.log('✅ URL convertida:', imgUrl);
                                                 
                                                 return `
-                                                    <img src="${imgUrl}" 
-                                                         style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;" 
-                                                         alt="Foto da limpeza"
-                                                         onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
-                                                         onclick="window.open('${fotoUrl}', '_blank')"
-                                                         title="Clique para abrir no Drive">
-                                                    <div style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;">
+                                                    <div class="photo-thumbnail-wrapper">
+                                                        <img src="${imgUrl}" 
+                                                             class="photo-thumbnail"
+                                                             alt="Foto da limpeza"
+                                                             onerror="this.style.display='none';this.parentElement.nextElementSibling.style.display='block';"
+                                                             onclick="openPhotoModal('${imgUrl}')"
+                                                             title="Clique para ampliar">
+                                                        <div class="photo-zoom-hint">🔍 Clique para ampliar</div>
+                                                    </div>
+                                                    <div style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;margin-top:10px;">
                                                         <p style="color:#856404;margin:0 0 10px 0;font-weight:600;">⚠️ Erro ao carregar foto</p>
                                                         <p style="color:#856404;margin:0 0 10px 0;font-size:13px;">A foto pode ter sido movida ou deletada do Google Drive.</p>
                                                         <a href="${fotoUrl}" target="_blank" style="display:inline-block;background:#4CAF50;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;">
                                                             🔗 Tentar abrir no Drive
                                                         </a>
                                                     </div>
-                                                    <p style="margin-top:8px;font-size:13px;color:#666;">
-                                                        <a href="${fotoUrl}" target="_blank" style="color:#4CAF50;text-decoration:none;">
-                                                            🔗 Abrir em tamanho real no Google Drive
+                                                    <p style="margin-top:8px;font-size:13px;color:#666;text-align:center;">
+                                                        <a href="${fotoUrl}" target="_blank" style="color:#4CAF50;text-decoration:none;font-weight:500;">
+                                                            🔗 Ver no Google Drive
                                                         </a>
                                                     </p>
                                                 `;
@@ -3483,26 +3517,94 @@
         }
 
         function formatarDataHora(data, hora) {
-            // Se data já está no formato DD/MM/YYYY, usar direto
-            if (typeof data === 'string' && data.includes('/')) {
-                return { data: data, hora: hora || '' };
+            console.log('📅 formatarDataHora chamado:', { data, hora });
+            
+            // CASO ESPECIAL: Hora vem como data de 1899 do Google Sheets
+            if (hora && typeof hora === 'string' && hora.includes('1899')) {
+                console.log('🔍 DETECTADO formato 1899:', hora);
+                
+                const h = new Date(hora);
+                
+                console.log('📊 Análise detalhada:', {
+                    string_original: hora,
+                    getUTCHours: h.getUTCHours(),
+                    getUTCMinutes: h.getUTCMinutes(),
+                    getUTCSeconds: h.getUTCSeconds(),
+                    getHours: h.getHours(),
+                    getMinutes: h.getMinutes(),
+                    getSeconds: h.getSeconds(),
+                    toISOString: h.toISOString(),
+                    toString: h.toString()
+                });
+                
+                // USAR HORA LOCAL DO BROWSER (já ajustada para GMT-3)
+                const horas = String(h.getHours()).padStart(2, '0');
+                const minutos = String(h.getMinutes()).padStart(2, '0');
+                const segundos = String(h.getSeconds()).padStart(2, '0');
+                const horaFormatada = `${horas}:${minutos}:${segundos}`;
+                
+                console.log('✅ Hora extraída (hora local do browser):', {
+                    utc: `${h.getUTCHours()}:${h.getUTCMinutes()}:${h.getUTCSeconds()}`,
+                    local: horaFormatada
+                });
+                
+                // Se data também for ISO, extrair data dela
+                if (data && typeof data === 'string' && data.includes('T')) {
+                    const d = new Date(data);
+                    const dia = String(d.getUTCDate()).padStart(2, '0');
+                    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
+                    const ano = d.getUTCFullYear();
+                    const dataFormatada = `${dia}/${mes}/${ano}`;
+                    return { data: dataFormatada, hora: horaFormatada };
+                }
+                
+                return { data: data || '', hora: horaFormatada };
             }
             
-            // Se for objeto Date
+            // Se data já está no formato DD/MM/YYYY e hora está preenchida corretamente
+            if (typeof data === 'string' && data.includes('/') && hora && hora !== '00:00' && !hora.includes('T')) {
+                console.log('✅ Usando data/hora já formatadas');
+                return { data: data, hora: hora };
+            }
+            
+            // Se for objeto Date ou string ISO - SEMPRE extrair data E hora daqui COM SEGUNDOS
             if (data instanceof Date || (typeof data === 'string' && data.includes('T'))) {
                 const d = new Date(data);
-                const dia = String(d.getDate()).padStart(2, '0');
-                const mes = String(d.getMonth() + 1).padStart(2, '0');
-                const ano = d.getFullYear();
-                const horas = String(d.getHours()).padStart(2, '0');
-                const minutos = String(d.getMinutes()).padStart(2, '0');
+                
+                // Converter para horário de Brasília (UTC-3)
+                const utc = d.getTime();
+                const brasiliaOffset = -3 * 60 * 60 * 1000; // -3 horas em milissegundos
+                const dataBrasilia = new Date(utc + brasiliaOffset);
+                
+                const dia = String(dataBrasilia.getUTCDate()).padStart(2, '0');
+                const mes = String(dataBrasilia.getUTCMonth() + 1).padStart(2, '0');
+                const ano = dataBrasilia.getUTCFullYear();
+                const horas = String(dataBrasilia.getUTCHours()).padStart(2, '0');
+                const minutos = String(dataBrasilia.getUTCMinutes()).padStart(2, '0');
+                const segundos = String(dataBrasilia.getUTCSeconds()).padStart(2, '0');
+                
+                console.log('🕐 Conversão de horário:', {
+                    original: data,
+                    utc: d.toISOString(),
+                    brasilia_data: `${dia}/${mes}/${ano}`,
+                    brasilia_hora: `${horas}:${minutos}:${segundos}`
+                });
                 
                 return {
                     data: `${dia}/${mes}/${ano}`,
-                    hora: `${horas}:${minutos}`
+                    hora: `${horas}:${minutos}:${segundos}`
                 };
             }
             
+            // Se hora também vier em formato ISO
+            if (hora && typeof hora === 'string' && hora.includes('T')) {
+                const h = new Date(hora);
+                const horaFormatada = `${String(h.getHours()).padStart(2, '0')}:${String(h.getMinutes()).padStart(2, '0')}:${String(h.getSeconds()).padStart(2, '0')}`;
+                console.log('🕐 Hora extraída de ISO:', { hora, horaFormatada });
+                return { data: data || '', hora: horaFormatada };
+            }
+            
+            console.log('⚠️ Usando valores originais');
             return { data: data || '', hora: hora || '' };
         }
 
@@ -4447,6 +4549,7 @@
             
             // Lista de feedbacks
             list.innerHTML = feedbacks.reverse().map((feedback, index) => {
+                const originalIndex = feedbacks.length - 1 - index; // Índice original antes do reverse
                 const { data, hora } = formatarDataHora(feedback.Data, feedback.Hora);
                 
                 // Função para formatar nota com cor
@@ -4463,7 +4566,7 @@
                 
                 return `
                 <div class="record-card" style="position:relative;">
-                    <button onclick="confirmarExclusaoRegistroUnico('avaliacao', ${feedbacks.length - 1 - index})" 
+                    <button onclick="confirmarExclusaoRegistroUnico('avaliacao', ${originalIndex})" 
                             style="position:absolute;top:10px;right:10px;background:#dc3545;color:white;border:none;border-radius:5px;padding:5px 8px;cursor:pointer;font-size:11px;transition:all 0.3s;z-index:10;opacity:0.5;"
                             onmouseover="this.style.opacity='1'" 
                             onmouseout="this.style.opacity='0.5'"
@@ -4538,6 +4641,8 @@
             const mes = document.getElementById('mesExclusao').value;
             const ano = document.getElementById('anoExclusao').value;
             
+            console.log('🔍 Filtro selecionado:', { tipo, mes, ano });
+            
             const aviso = document.getElementById('avisoExclusao');
             const btnExcluir = document.getElementById('btnExcluir');
             
@@ -4560,8 +4665,10 @@
                     }
                     const response = await fetch(`${SCRIPT_URL_LIMPEZA}?action=get`);
                     const result = await response.json();
+                    console.log('📡 Resposta do servidor (limpeza):', result);
                     if (result.status === 'success') {
                         registros = result.data || [];
+                        console.log('✅ Registros recebidos:', registros.length);
                     }
                 } else {
                     if (!SCRIPT_URL_FEEDBACK) {
@@ -4570,27 +4677,77 @@
                     }
                     const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
                     const result = await response.json();
+                    console.log('📡 Resposta do servidor (feedback):', result);
                     if (result.status === 'success') {
                         registros = result.data || [];
+                        console.log('✅ Registros recebidos:', registros.length);
                     }
                 }
+                
+                console.log('📋 Amostra de registros (primeiros 3):', registros.slice(0, 3));
                 
                 // Filtrar por mês e ano
                 const registrosFiltrados = registros.filter(r => {
                     const data = r.Data || r.data;
-                    if (!data) return false;
                     
-                    // Formato: DD/MM/YYYY
-                    const partes = data.split('/');
-                    if (partes.length !== 3) return false;
+                    console.log('🔍 Verificando registro:', { 
+                        data_original: data,
+                        tipo_data: typeof data,
+                        Data_campo: r.Data,
+                        data_campo: r.data
+                    });
                     
-                    const mesReg = partes[1];
-                    const anoReg = partes[2];
+                    if (!data) {
+                        console.log('❌ Data vazia');
+                        return false;
+                    }
                     
-                    return mesReg === mes && anoReg === ano;
+                    let mesReg, anoReg;
+                    
+                    // CASO 1: Data no formato ISO (2026-02-20T03:00:00.000Z)
+                    if (typeof data === 'string' && (data.includes('T') || data.includes('-'))) {
+                        const dateObj = new Date(data);
+                        mesReg = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        anoReg = String(dateObj.getFullYear());
+                        console.log('📅 Data ISO convertida:', { data, mesReg, anoReg });
+                    }
+                    // CASO 2: Data como objeto Date
+                    else if (data instanceof Date) {
+                        mesReg = String(data.getMonth() + 1).padStart(2, '0');
+                        anoReg = String(data.getFullYear());
+                        console.log('📅 Data objeto convertida:', { mesReg, anoReg });
+                    }
+                    // CASO 3: Data no formato DD/MM/YYYY
+                    else {
+                        const partes = String(data).split('/');
+                        console.log('🔢 Partes da data:', partes);
+                        
+                        if (partes.length !== 3) {
+                            console.log('❌ Formato inválido (não tem 3 partes)');
+                            return false;
+                        }
+                        
+                        mesReg = partes[1];
+                        anoReg = partes[2];
+                        console.log('📅 Data DD/MM/YYYY:', { mesReg, anoReg });
+                    }
+                    
+                    const match = mesReg === mes && anoReg === ano;
+                    console.log('🎯 Comparação:', { 
+                        mesReg, 
+                        mes, 
+                        anoReg, 
+                        ano,
+                        match 
+                    });
+                    
+                    return match;
                 });
                 
                 const total = registrosFiltrados.length;
+                console.log('✅ Total de registros filtrados:', total);
+                console.log('📋 Registros filtrados:', registrosFiltrados);
+                
                 document.getElementById('totalExclusao').textContent = total;
                 
                 if (total > 0) {
@@ -4606,7 +4763,7 @@
                 }
                 
             } catch (error) {
-                console.error('Erro ao contar registros:', error);
+                console.error('❌ Erro ao contar registros:', error);
                 showWarningModal('❌', 'Erro', 'Não foi possível contar os registros.');
             }
         }
@@ -4792,7 +4949,16 @@
                 
                 showWarningModal('✅', 'Registro Excluído!', 'O registro foi removido com sucesso.');
                 
-                // Recarregar histórico
+                // Adicionar animação de exclusão ao card antes de recarregar
+                const cardElements = document.querySelectorAll('.record-card');
+                if (cardElements[indice]) {
+                    cardElements[indice].classList.add('deleting');
+                }
+                
+                // Mostrar toast de sucesso
+                showToast('Registro Excluído', 'O registro foi removido com sucesso.', 'success');
+                
+                // Recarregar histórico após animação
                 setTimeout(() => {
                     closeWarningModal();
                     if (tipo === 'limpeza') {
@@ -4800,12 +4966,12 @@
                     } else {
                         loadFeedbackHistory();
                     }
-                }, 1500);
+                }, 500);
                 
             } catch (error) {
                 closeWarningModal();
                 console.error('Erro ao excluir registro:', error);
-                showWarningModal('❌', 'Erro', 'Não foi possível excluir o registro. Tente novamente.');
+                showToast('Erro ao Excluir', 'Não foi possível excluir o registro. Tente novamente.', 'error');
             }
             
             registroParaExcluir = null;
@@ -5338,6 +5504,309 @@
                 sincronizarDadosPendentes();
             }
         });
+
+        // ============================================
+        // TOAST NOTIFICATION SYSTEM
+        // ============================================
+        function showToast(title, message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto-remove após 3 segundos
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================
+        // LOADING OVERLAY
+        // ============================================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // ============================================
+        // PHOTO MODAL
+        // ============================================
+        function openPhotoModal(imageSrc) {
+            const modal = document.getElementById('photoModal');
+            const modalImg = document.getElementById('photoModalImg');
+            modalImg.src = imageSrc;
+            modal.classList.add('active');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.remove('active');
+        }
+
+        // Fechar modal ao clicar fora da imagem
+        window.addEventListener('load', () => {
+            const photoModal = document.getElementById('photoModal');
+            if (photoModal) {
+                photoModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closePhotoModal();
+                    }
+                });
+            }
+        });
     </script>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="photo-modal">
+        <button class="photo-modal-close" onclick="closePhotoModal()">×</button>
+        <img id="photoModalImg" src="" alt="Foto ampliada">
+    </div>
+
+    <style>
+        /* TOAST NOTIFICATIONS */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 400px;
+            pointer-events: all;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .toast.success { border-left-color: #4CAF50; }
+        .toast.error { border-left-color: #f44336; }
+        .toast.warning { border-left-color: #ff9800; }
+        .toast.info { border-left-color: #2196F3; }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+        }
+
+        /* LOADING SPINNER */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* PHOTO MODAL */
+        .photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            cursor: pointer;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .photo-modal.active {
+            display: flex;
+        }
+
+        .photo-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            cursor: default;
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            z-index: 1;
+        }
+
+        .photo-modal-close:hover {
+            transform: scale(1.1);
+            background: #f0f0f0;
+        }
+
+        /* PHOTO THUMBNAIL IMPROVEMENTS */
+        .photo-thumbnail {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .photo-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .photo-thumbnail-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .photo-zoom-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .photo-thumbnail-wrapper:hover .photo-zoom-hint {
+            opacity: 1;
+        }
+
+        /* MOBILE RESPONSIVENESS FOR NEW COMPONENTS */
+        @media (max-width: 768px) {
+            .toast-container {
+                left: 10px;
+                right: 10px;
+            }
+
+            .toast {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .photo-modal img {
+                max-width: 95%;
+                max-height: 80%;
+            }
+
+            .photo-modal-close {
+                top: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+            }
+        }
+    </style>
 </body>
 </html>
