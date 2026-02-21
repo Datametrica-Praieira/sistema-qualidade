@@ -2582,7 +2582,7 @@
         </div>
 
         <div class="footer">
-            © 2025 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
+            © 2026 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
             <a class="settings-link" id="settingsLink" onclick="showConfigBanner()" style="display:none;">⚙️ Configurações</a>
         </div>
     </div>
@@ -3369,6 +3369,13 @@
                 const recordId = `record-${records.length - 1 - index}`;
                 const { data, hora } = formatarDataHora(record.Data, record.Hora);
                 
+                // Parse checklist (vem como texto separado por ;)
+                const checklistText = record.Checklist || record.checklist || '';
+                const checklistItems = checklistText.split(';').map(item => item.trim()).filter(item => item);
+                
+                console.log('📋 Checklist recebido:', checklistText);
+                console.log('✅ Itens parseados:', checklistItems);
+                
                 return `
                 <div class="record-card" style="position:relative;">
                     <!-- Botões no canto superior direito -->
@@ -3406,44 +3413,64 @@
                         
                         <div>
                             <strong style="color:#2C3E50;">✅ Checklist de Limpeza:</strong>
-                            <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;">
-                                ${(record.Vaso === 'Sim' || record.Vaso === true || record.Vaso === 'true' || record.Vaso === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Vaso Sanitário</div>` : ''}
-                                ${(record.Pia === 'Sim' || record.Pia === true || record.Pia === 'true' || record.Pia === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Pia</div>` : ''}
-                                ${(record.Cabine === 'Sim' || record.Cabine === true || record.Cabine === 'true' || record.Cabine === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Cabine</div>` : ''}
-                                ${(record['Chão Banheiro'] === 'Sim' || record['Chão Banheiro'] === true || record['Chão Banheiro'] === 'true' || record['Chão Banheiro'] === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Chão Banheiro</div>` : ''}
-                                ${(record.Papel === 'Sim' || record.Papel === true || record.Papel === 'true' || record.Papel === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Papel Higiênico</div>` : ''}
-                                ${(record.Sabonete === 'Sim' || record.Sabonete === true || record.Sabonete === 'true' || record.Sabonete === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Sabonete</div>` : ''}
-                                ${(record.Lixeira === 'Sim' || record.Lixeira === true || record.Lixeira === 'true' || record.Lixeira === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Lixeira</div>` : ''}
-                                ${(record.Espelho === 'Sim' || record.Espelho === true || record.Espelho === 'true' || record.Espelho === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Espelho</div>` : ''}
-                                ${(record.Porta === 'Sim' || record.Porta === true || record.Porta === 'true' || record.Porta === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Porta</div>` : ''}
-                                ${(record.Paredes === 'Sim' || record.Paredes === true || record.Paredes === 'true' || record.Paredes === '✓') ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:#4CAF50;font-size:16px;">✓</span> Paredes</div>` : ''}
+                            <div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">
+                                ${checklistItems.length > 0 ? checklistItems.map(item => `
+                                    <div style="display:flex;align-items:center;gap:5px;">
+                                        <span style="color:#4CAF50;font-size:16px;">✓</span> ${item}
+                                    </div>
+                                `).join('') : '<p style="color:#999;font-style:italic;">Nenhum item marcado</p>'}
                             </div>
                         </div>
                         
-                        ${record.Foto && record.Foto.trim() !== '' && record.Foto !== 'undefined' ? `
+                        ${record['Foto URL'] && record['Foto URL'].trim() !== '' && record['Foto URL'] !== 'undefined' ? `
                             <div style="margin-top:15px;">
                                 <strong style="color:#2C3E50;">📷 Foto do Local:</strong>
                                 <div style="margin-top:10px;text-align:center;">
-                                    <img src="${(() => {
-                                        // Extrair ID e usar formato que funciona
-                                        if (record.Foto.includes('drive.google.com')) {
-                                            const match = record.Foto.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                                    ${(() => {
+                                        const fotoUrl = record['Foto URL'];
+                                        console.log('📸 URL da foto recebida:', fotoUrl);
+                                        
+                                        // Verificar se é URL válida do Google Drive
+                                        if (fotoUrl.includes('drive.google.com')) {
+                                            const match = fotoUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
                                             if (match && match[1]) {
-                                                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                                                const fileId = match[1];
+                                                const imgUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+                                                console.log('✅ URL convertida:', imgUrl);
+                                                
+                                                return `
+                                                    <img src="${imgUrl}" 
+                                                         style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;" 
+                                                         alt="Foto da limpeza"
+                                                         onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
+                                                         onclick="window.open('${fotoUrl}', '_blank')"
+                                                         title="Clique para abrir no Drive">
+                                                    <div style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;">
+                                                        <p style="color:#856404;margin:0 0 10px 0;font-weight:600;">⚠️ Erro ao carregar foto</p>
+                                                        <p style="color:#856404;margin:0 0 10px 0;font-size:13px;">A foto pode ter sido movida ou deletada do Google Drive.</p>
+                                                        <a href="${fotoUrl}" target="_blank" style="display:inline-block;background:#4CAF50;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;">
+                                                            🔗 Tentar abrir no Drive
+                                                        </a>
+                                                    </div>
+                                                    <p style="margin-top:8px;font-size:13px;color:#666;">
+                                                        <a href="${fotoUrl}" target="_blank" style="color:#4CAF50;text-decoration:none;">
+                                                            🔗 Abrir em tamanho real no Google Drive
+                                                        </a>
+                                                    </p>
+                                                `;
                                             }
                                         }
-                                        return record.Foto;
-                                    })()}" 
-                                         style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;" 
-                                         alt="Foto da limpeza"
-                                         onerror="this.parentElement.innerHTML='<p style=color:#E63946>⚠️ Erro ao carregar. <a href=${record.Foto} target=_blank style=color:#4CAF50>Clique para ver no Drive</a></p>'"
-                                         onclick="window.open('${record.Foto}', '_blank')"
-                                         title="Clique para abrir no Drive">
-                                    <p style="margin-top:8px;font-size:13px;color:#666;">
-                                        <a href="${record.Foto}" target="_blank" style="color:#4CAF50;text-decoration:none;">
-                                            🔗 Abrir em tamanho real no Google Drive
-                                        </a>
-                                    </p>
+                                        
+                                        // Se não for Google Drive ou URL inválida
+                                        console.log('⚠️ URL não reconhecida como Google Drive');
+                                        return `
+                                            <div style="padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;">
+                                                <p style="color:#856404;margin:0 0 10px 0;font-weight:600;">⚠️ URL de foto inválida</p>
+                                                <p style="color:#856404;margin:0 0 10px 0;font-size:13px;">URL recebida: ${fotoUrl}</p>
+                                                <p style="color:#856404;margin:0;font-size:13px;">Verifique se a foto está compartilhada corretamente no Google Drive.</p>
+                                            </div>
+                                        `;
+                                    })()}
                                 </div>
                             </div>
                         ` : `<div style="margin-top:15px;color:#999;font-size:13px;font-style:italic;">Nenhuma foto disponível</div>`}
