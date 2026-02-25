@@ -2115,18 +2115,12 @@
         <div class="config-banner" id="configBanner">
             <button class="config-banner-close" onclick="hideConfigBanner()">×</button>
             <h3>⚙️ Configuração do Sistema</h3>
-            <p style="margin-bottom:20px;">Configure as URLs dos Google Apps Scripts para cada planilha:</p>
+            <p style="margin-bottom:20px;">Configure a URL do Google Apps Script (gerencia limpeza E avaliação):</p>
             
             <div style="margin-bottom:25px;">
-                <label style="display:block;font-weight:600;margin-bottom:8px;color:#E63946;">🧹 URL Google Script - Limpeza:</label>
-                <input type="text" id="scriptUrlLimpeza" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:5px;">
-                <small style="color:#666;display:block;">Para registros de limpeza (ASG)</small>
-            </div>
-            
-            <div style="margin-bottom:25px;">
-                <label style="display:block;font-weight:600;margin-bottom:8px;color:#E63946;">💭 URL Google Script - Feedback:</label>
-                <input type="text" id="scriptUrlFeedback" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:5px;">
-                <small style="color:#666;display:block;">Para feedbacks dos usuários</small>
+                <label style="display:block;font-weight:600;margin-bottom:8px;color:#E63946;">📊 URL Google Apps Script:</label>
+                <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:5px;">
+                <small style="color:#666;display:block;">Esta URL gerencia tanto os registros de limpeza quanto as avaliações</small>
             </div>
             
             <button onclick="saveScriptUrls()">💾 Salvar Configuração</button>
@@ -2533,79 +2527,14 @@
                             <p>Ao clicar em "Resetar Senha", a senha voltará para: <strong>datametrica2026</strong></p>
                         </div>
 
-                        <!-- Excluir Registros por Período -->
-                        <div style="margin-top:40px;padding:25px;background:linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);border-radius:15px;">
-                            <div style="font-size:20px;font-weight:800;color:white;margin-bottom:15px;">
-                                🗑️ EXCLUIR REGISTROS POR PERÍODO
-                            </div>
-                            <p style="color:#fff;margin-bottom:20px;font-size:15px;opacity:0.95;">
-                                Remova registros antigos por mês e ano. Esta ação é permanente!
-                            </p>
-                            
-                            <div style="background:rgba(255,255,255,0.95);padding:20px;border-radius:12px;">
-                                <div style="margin-bottom:20px;">
-                                    <label style="display:block;font-weight:600;margin-bottom:10px;color:#2C3E50;">📊 Tipo de Registro:</label>
-                                    <div style="display:flex;gap:15px;">
-                                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 15px;background:#f8f9fa;border-radius:8px;border:2px solid #E5E5E5;">
-                                            <input type="radio" name="tipoExclusao" value="limpeza" checked onchange="atualizarContagemExclusao()">
-                                            <span style="font-weight:600;">🧹 Limpeza</span>
-                                        </label>
-                                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 15px;background:#f8f9fa;border-radius:8px;border:2px solid #E5E5E5;">
-                                            <input type="radio" name="tipoExclusao" value="avaliacao" onchange="atualizarContagemExclusao()">
-                                            <span style="font-weight:600;">⭐ Avaliação</span>
-                                        </label>
-                                    </div>
-                                </div>
 
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;">
-                                    <div>
-                                        <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">📅 Mês:</label>
-                                        <select id="mesExclusao" onchange="atualizarContagemExclusao()" style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:8px;font-size:15px;">
-                                            <option value="">Selecione o mês</option>
-                                            <option value="01">Janeiro</option>
-                                            <option value="02">Fevereiro</option>
-                                            <option value="03">Março</option>
-                                            <option value="04">Abril</option>
-                                            <option value="05">Maio</option>
-                                            <option value="06">Junho</option>
-                                            <option value="07">Julho</option>
-                                            <option value="08">Agosto</option>
-                                            <option value="09">Setembro</option>
-                                            <option value="10">Outubro</option>
-                                            <option value="11">Novembro</option>
-                                            <option value="12">Dezembro</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label style="display:block;font-weight:600;margin-bottom:8px;color:#2C3E50;">📆 Ano:</label>
-                                        <select id="anoExclusao" onchange="atualizarContagemExclusao()" style="width:100%;padding:12px;border:2px solid #E5E5E5;border-radius:8px;font-size:15px;">
-                                            <option value="">Selecione o ano</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div id="avisoExclusao" style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;margin-bottom:15px;">
-                                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
-                                        <span style="font-size:24px;">⚠️</span>
-                                        <strong style="color:#856404;">Esta ação não pode ser desfeita!</strong>
-                                    </div>
-                                    <p style="color:#856404;margin:5px 0 0 34px;font-size:14px;">
-                                        Total de registros a excluir: <strong id="totalExclusao">0</strong>
-                                    </p>
-                                </div>
-
-                                <button id="btnExcluir" onclick="confirmarExclusaoRegistros()" disabled style="width:100%;padding:15px;background:#dc3545;color:white;border:none;border-radius:8px;font-weight:700;font-size:16px;cursor:pointer;opacity:0.5;">
-                                    🗑️ Excluir Registros
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            © 2025 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
+            © 2026 Datamétrica - Pesquisa e Consultoria | Controle e Qualidade de Limpeza - Praieira
             <a class="settings-link" id="settingsLink" onclick="showConfigBanner()" style="display:none;">⚙️ Configurações</a>
         </div>
     </div>
@@ -2740,8 +2669,8 @@
         // Variáveis globais
         let stream = null;
         let photoData = null;
-        let SCRIPT_URL_LIMPEZA = 'https://script.google.com/macros/s/AKfycbx3c6MJQLJqkBYwjnJPM_sZiIkNCSclAcAhT9R4-RpuycV_Z2Z5Vi2g_y_Wtv_3tA9gAg/exec';
-        let SCRIPT_URL_FEEDBACK = 'https://script.google.com/macros/s/AKfycbyLYMmhqXaSMauM_ewzJwHyOxzbtZJ9WZqxsAe4D3HcNlQEVUvm6aXLXcf9NoKS10ZUYA/exec';
+        // UMA URL SÓ - Script unificado gerencia limpeza E avaliação
+        let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcGovrbnE4_PHRknEuYURy6G02VtmaqCPwLkdhSsPGpAoAqBDCip1ZPKtztmU5nL-uQg/exec';
         let currentUser = null;
 
         // Inicializar
@@ -2986,44 +2915,36 @@
 
         // Verificar configuração
         function checkConfiguration() {
-            // URLs hardcoded - sempre funcionam!
-            // Apenas permite sobrescrever via localStorage se ADM quiser mudar
-            const storedLimpeza = localStorage.getItem('googleScriptUrlLimpeza');
-            const storedFeedback = localStorage.getItem('googleScriptUrlFeedback');
+            // Carregar URL do localStorage
+            const stored = localStorage.getItem('googleScriptUrl');
             
-            // Só sobrescrever se tiver valor no localStorage (ADM configurou manualmente)
-            if (storedLimpeza) {
-                SCRIPT_URL_LIMPEZA = storedLimpeza;
+            if (stored) {
+                SCRIPT_URL = stored;
+                document.getElementById('configBanner').classList.remove('show');
+                updateStatus(true);
+            } else if (SCRIPT_URL && SCRIPT_URL !== '') {
+                // Se já existe URL padrão configurada no código
+                document.getElementById('configBanner').classList.remove('show');
+                updateStatus(true);
+            } else {
+                // Sem URL configurada - mostrar banner
+                document.getElementById('configBanner').classList.add('show');
+                updateStatus(false);
             }
-            if (storedFeedback) {
-                SCRIPT_URL_FEEDBACK = storedFeedback;
-            }
-            
-            // NUNCA mostrar banner - URLs já estão configuradas!
-            document.getElementById('configBanner').classList.remove('show');
-            updateStatus(true);
         }
 
         function saveScriptUrls() {
-            const urlLimpeza = document.getElementById('scriptUrlLimpeza').value.trim();
-            const urlFeedback = document.getElementById('scriptUrlFeedback').value.trim();
+            const url = document.getElementById('scriptUrl').value.trim();
             
-            // Validar URLs
-            if (!urlLimpeza || !urlLimpeza.includes('script.google.com')) {
-                alert('❌ URL de Limpeza inválida! Certifique-se de copiar a URL completa do Google Apps Script.');
+            // Validar URL
+            if (!url || !url.includes('script.google.com')) {
+                alert('❌ URL inválida! Certifique-se de copiar a URL completa do Google Apps Script.');
                 return;
             }
             
-            if (!urlFeedback || !urlFeedback.includes('script.google.com')) {
-                alert('❌ URL de Feedback inválida! Certifique-se de copiar a URL completa do Google Apps Script.');
-                return;
-            }
-            
-            // Salvar URLs
-            localStorage.setItem('googleScriptUrlLimpeza', urlLimpeza);
-            localStorage.setItem('googleScriptUrlFeedback', urlFeedback);
-            SCRIPT_URL_LIMPEZA = urlLimpeza;
-            SCRIPT_URL_FEEDBACK = urlFeedback;
+            // Salvar URL
+            localStorage.setItem('googleScriptUrl', url);
+            SCRIPT_URL = url;
             
             hideConfigBanner();
             updateStatus(true);
@@ -3145,7 +3066,6 @@
                 loadEmployeeList();
             } else if (tabName === 'solicitacoes') {
                 loadResetRequestsList();
-                inicializarSeletorAnos();
             } else if (tabName === 'feedback') {
                 checkFeedbackEligibility();
             }
@@ -3209,7 +3129,7 @@
         document.getElementById('checklistForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (!SCRIPT_URL_LIMPEZA) {
+            if (!SCRIPT_URL) {
                 alert('⚠️ Configure a URL do Google Apps Script primeiro!');
                 document.getElementById('configBanner').classList.add('show');
                 return;
@@ -3242,6 +3162,7 @@
             
             const now = new Date();
             const record = {
+                tipo: 'limpeza',  // ← NOVO
                 matricula: currentUser.matricula,
                 nome: nome,
                 local: local,
@@ -3257,17 +3178,19 @@
             document.getElementById('submitBtn').disabled = true;
             
             try {
-                // Enviar para Google Sheets - Planilha de Limpeza
-                const response = await fetch(SCRIPT_URL_LIMPEZA, {
+                // Enviar para Google Sheets
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    mode: 'no-cors',  // Necessário para evitar erro CORS
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(record)
                 });
                 
-                // No-cors mode não permite ler a resposta, então assumimos sucesso
+                // No-cors não permite ler resposta, então assumimos sucesso
+                // O registro será salvo no Google Sheets mesmo sem confirmação visual
+                
                 hideLoading();
                 showSuccessModal();
                 showToast('Limpeza Registrada', 'Registro enviado com sucesso!', 'success');
@@ -3330,7 +3253,7 @@
 
         // Carregar registros do Google Sheets
         async function loadRecords() {
-            if (!SCRIPT_URL_LIMPEZA) {
+            if (!SCRIPT_URL) {
                 document.getElementById('recordsList').innerHTML = `
                     <div class="empty-state">
                         <h3>Configure a URL do Google Apps Script</h3>
@@ -3344,7 +3267,7 @@
             document.getElementById('recordsList').innerHTML = '';
             
             try {
-                const response = await fetch(SCRIPT_URL_LIMPEZA + '?action=get');
+                const response = await fetch(SCRIPT_URL + '?action=get&tipo=limpeza');
                 const result = await response.json();
                 
                 if (result.status === 'success' && result.data) {
@@ -3461,38 +3384,45 @@
                                         const fotoUrl = record['Foto URL'];
                                         console.log('📸 URL da foto recebida:', fotoUrl);
                                         
-                                        // Verificar se é URL válida do Google Drive
-                                        if (fotoUrl.includes('drive.google.com')) {
-                                            const match = fotoUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                                            if (match && match[1]) {
-                                                const fileId = match[1];
-                                                const imgUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-                                                console.log('✅ URL convertida:', imgUrl);
-                                                
-                                                return `
-                                                    <div class="photo-thumbnail-wrapper">
-                                                        <img src="${imgUrl}" 
-                                                             class="photo-thumbnail"
-                                                             alt="Foto da limpeza"
-                                                             onerror="this.style.display='none';this.parentElement.nextElementSibling.style.display='block';"
-                                                             onclick="openPhotoModal('${imgUrl}')"
-                                                             title="Clique para ampliar">
-                                                        <div class="photo-zoom-hint">🔍 Clique para ampliar</div>
-                                                    </div>
-                                                    <div style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;margin-top:10px;">
-                                                        <p style="color:#856404;margin:0 0 10px 0;font-weight:600;">⚠️ Erro ao carregar foto</p>
-                                                        <p style="color:#856404;margin:0 0 10px 0;font-size:13px;">A foto pode ter sido movida ou deletada do Google Drive.</p>
-                                                        <a href="${fotoUrl}" target="_blank" style="display:inline-block;background:#4CAF50;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;">
-                                                            🔗 Tentar abrir no Drive
-                                                        </a>
-                                                    </div>
-                                                    <p style="margin-top:8px;font-size:13px;color:#666;text-align:center;">
-                                                        <a href="${fotoUrl}" target="_blank" style="color:#4CAF50;text-decoration:none;font-weight:500;">
-                                                            🔗 Ver no Google Drive
-                                                        </a>
-                                                    </p>
-                                                `;
+                                        // Verificar se é URL do Google (Drive ou User Content)
+                                        if (fotoUrl.includes('drive.google.com') || fotoUrl.includes('googleusercontent.com')) {
+                                            
+                                            let imgUrl = fotoUrl;
+                                            
+                                            // Se for drive.google.com, extrair ID e converter
+                                            if (fotoUrl.includes('drive.google.com')) {
+                                                const match = fotoUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                                                if (match && match[1]) {
+                                                    const fileId = match[1];
+                                                    imgUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+                                                }
                                             }
+                                            
+                                            console.log('✅ URL da imagem:', imgUrl);
+                                            
+                                            return `
+                                                <div class="photo-thumbnail-wrapper">
+                                                    <img src="${imgUrl}" 
+                                                         class="photo-thumbnail"
+                                                         alt="Foto da limpeza"
+                                                         onerror="this.style.display='none';this.parentElement.nextElementSibling.style.display='block';"
+                                                         onclick="openPhotoModal('${imgUrl}')"
+                                                         title="Clique para ampliar">
+                                                    <div class="photo-zoom-hint">🔍 Clique para ampliar</div>
+                                                </div>
+                                                <div style="display:none;padding:15px;background:#fff3cd;border:2px solid #ffc107;border-radius:8px;margin-top:10px;">
+                                                    <p style="color:#856404;margin:0 0 10px 0;font-weight:600;">⚠️ Erro ao carregar foto</p>
+                                                    <p style="color:#856404;margin:0 0 10px 0;font-size:13px;">A foto pode ter sido movida ou deletada do Google Drive.</p>
+                                                    <a href="${fotoUrl}" target="_blank" style="display:inline-block;background:#4CAF50;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;">
+                                                        🔗 Tentar abrir no Drive
+                                                    </a>
+                                                </div>
+                                                <p style="margin-top:8px;font-size:13px;color:#666;text-align:center;">
+                                                    <a href="${fotoUrl}" target="_blank" style="color:#4CAF50;text-decoration:none;font-weight:500;">
+                                                        🔗 Ver no Google Drive
+                                                    </a>
+                                                </p>
+                                            `;
                                         }
                                         
                                         // Se não for Google Drive ou URL inválida
@@ -3517,95 +3447,172 @@
         }
 
         function formatarDataHora(data, hora) {
-            console.log('📅 formatarDataHora chamado:', { data, hora });
+            console.log('═══════════════════════════════════════');
+            console.log('📅 formatarDataHora CHAMADO');
+            console.log('═══════════════════════════════════════');
+            console.log('📥 ENTRADA - Data:', data);
+            console.log('📥 ENTRADA - Hora:', hora);
+            console.log('📥 Tipo Data:', typeof data);
+            console.log('📥 Tipo Hora:', typeof hora);
+            console.log('═══════════════════════════════════════');
             
-            // CASO ESPECIAL: Hora vem como data de 1899 do Google Sheets
-            if (hora && typeof hora === 'string' && hora.includes('1899')) {
-                console.log('🔍 DETECTADO formato 1899:', hora);
+            let dataFormatada = '';
+            let horaFormatada = '';
+            
+            // ============================================
+            // PROCESSAMENTO DA DATA
+            // ============================================
+            
+            if (data) {
+                // Caso 1: Data já formatada (DD/MM/YYYY)
+                if (typeof data === 'string' && data.includes('/')) {
+                    dataFormatada = data;
+                    console.log('✅ DATA: Já formatada', dataFormatada);
+                }
+                // Caso 2: Data em formato ISO (2026-02-24T...)
+                else if (typeof data === 'string' && data.includes('T')) {
+                    const match = data.match(/(\d{4})-(\d{2})-(\d{2})/);
+                    if (match) {
+                        dataFormatada = `${match[3]}/${match[2]}/${match[1]}`;
+                        console.log('✅ DATA: Extraída de ISO', dataFormatada);
+                    }
+                }
+                // Caso 3: Data como objeto Date
+                else if (data instanceof Date) {
+                    const dia = String(data.getDate()).padStart(2, '0');
+                    const mes = String(data.getMonth() + 1).padStart(2, '0');
+                    const ano = data.getFullYear();
+                    dataFormatada = `${dia}/${mes}/${ano}`;
+                    console.log('✅ DATA: De objeto Date', dataFormatada);
+                }
+                else {
+                    dataFormatada = String(data);
+                    console.log('⚠️ DATA: Usando toString()', dataFormatada);
+                }
+            }
+            
+            // ============================================
+            // PROCESSAMENTO DA HORA
+            // ============================================
+            
+            if (hora) {
+                console.log('🔍 Iniciando processamento da HORA...');
+                console.log('🔍 Valor da hora:', hora);
+                console.log('🔍 Tipo:', typeof hora);
                 
-                const h = new Date(hora);
-                
-                console.log('📊 Análise detalhada:', {
-                    string_original: hora,
-                    getUTCHours: h.getUTCHours(),
-                    getUTCMinutes: h.getUTCMinutes(),
-                    getUTCSeconds: h.getUTCSeconds(),
-                    getHours: h.getHours(),
-                    getMinutes: h.getMinutes(),
-                    getSeconds: h.getSeconds(),
-                    toISOString: h.toISOString(),
-                    toString: h.toString()
-                });
-                
-                // USAR HORA LOCAL DO BROWSER (já ajustada para GMT-3)
-                const horas = String(h.getHours()).padStart(2, '0');
-                const minutos = String(h.getMinutes()).padStart(2, '0');
-                const segundos = String(h.getSeconds()).padStart(2, '0');
-                const horaFormatada = `${horas}:${minutos}:${segundos}`;
-                
-                console.log('✅ Hora extraída (hora local do browser):', {
-                    utc: `${h.getUTCHours()}:${h.getUTCMinutes()}:${h.getUTCSeconds()}`,
-                    local: horaFormatada
-                });
-                
-                // Se data também for ISO, extrair data dela
-                if (data && typeof data === 'string' && data.includes('T')) {
-                    const d = new Date(data);
-                    const dia = String(d.getUTCDate()).padStart(2, '0');
-                    const mes = String(d.getUTCMonth() + 1).padStart(2, '0');
-                    const ano = d.getUTCFullYear();
-                    const dataFormatada = `${dia}/${mes}/${ano}`;
-                    return { data: dataFormatada, hora: horaFormatada };
+                // Caso 1: Hora já formatada (HH:MM:SS ou HH:MM)
+                if (typeof hora === 'string' && hora.includes(':') && !hora.includes('T') && !hora.includes('1899')) {
+                    horaFormatada = hora;
+                    console.log('✅ HORA: Já formatada', horaFormatada);
+                }
+                // Caso 2: Hora em formato 1899 do Google Sheets
+                else if (typeof hora === 'string' && hora.includes('1899')) {
+                    console.log('🔍 HORA: Formato 1899 detectado');
+                    console.log('🔍 String completa:', hora);
+                    
+                    const match = hora.match(/T(\d{2}):(\d{2}):(\d{2})/);
+                    if (match) {
+                        // Extrair hora UTC
+                        let horas = parseInt(match[1]);
+                        let minutos = parseInt(match[2]);
+                        let segundos = parseInt(match[3]);
+                        
+                        console.log('🔍 Hora UTC extraída:', `${horas}:${minutos}:${segundos}`);
+                        
+                        // ADICIONAR diferença observada: +20h 53min 32seg
+                        segundos += 32;
+                        if (segundos >= 60) {
+                            minutos += Math.floor(segundos / 60);
+                            segundos = segundos % 60;
+                        }
+                        
+                        minutos += 53;
+                        if (minutos >= 60) {
+                            horas += Math.floor(minutos / 60);
+                            minutos = minutos % 60;
+                        }
+                        
+                        horas += 20;
+                        if (horas >= 24) {
+                            horas = horas % 24;
+                        }
+                        
+                        horaFormatada = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+                        console.log('✅ HORA: Corrigida (+20h 53m 32s):', horaFormatada);
+                    } else {
+                        console.log('❌ HORA: Regex não encontrou padrão T00:00:00');
+                        const match2 = hora.match(/(\d{2}):(\d{2}):(\d{2})/);
+                        if (match2) {
+                            let horas = parseInt(match2[1]);
+                            let minutos = parseInt(match2[2]);
+                            let segundos = parseInt(match2[3]);
+                            
+                            segundos += 32;
+                            if (segundos >= 60) {
+                                minutos += Math.floor(segundos / 60);
+                                segundos = segundos % 60;
+                            }
+                            minutos += 53;
+                            if (minutos >= 60) {
+                                horas += Math.floor(minutos / 60);
+                                minutos = minutos % 60;
+                            }
+                            horas += 20;
+                            if (horas >= 24) horas = horas % 24;
+                            
+                            horaFormatada = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+                            console.log('✅ HORA: Corrigida:', horaFormatada);
+                        }
+                    }
+                }
+                // Caso 3: Hora em formato ISO completo
+                else if (typeof hora === 'string' && hora.includes('T')) {
+                    console.log('🔍 HORA: Formato ISO detectado');
+                    const match = hora.match(/T(\d{2}):(\d{2}):(\d{2})/);
+                    if (match) {
+                        horaFormatada = `${match[1]}:${match[2]}:${match[3]}`;
+                        console.log('✅ HORA: Extraída de ISO:', horaFormatada);
+                    }
+                }
+                // Caso 4: Hora como número (serial do Excel)
+                else if (typeof hora === 'number') {
+                    console.log('🔍 HORA: Número serial detectado:', hora);
+                    // Converter número serial para hora
+                    const totalSeconds = Math.round(hora * 24 * 60 * 60);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    horaFormatada = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    console.log('✅ HORA: Convertida de serial:', horaFormatada);
+                }
+                // Caso 5: Qualquer outra coisa
+                else {
+                    horaFormatada = String(hora);
+                    console.log('⚠️ HORA: Usando toString():', horaFormatada);
                 }
                 
-                return { data: data || '', hora: horaFormatada };
+                // Se ainda estiver vazio, tentar extrair de qualquer lugar
+                if (!horaFormatada || horaFormatada === '') {
+                    console.log('❌ HORA ainda vazia! Tentando regex universal...');
+                    const str = String(hora);
+                    const match = str.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+                    if (match) {
+                        horaFormatada = `${String(match[1]).padStart(2, '0')}:${match[2]}:${match[3]}`;
+                        console.log('✅ HORA: Extraída com regex universal:', horaFormatada);
+                    }
+                }
             }
             
-            // Se data já está no formato DD/MM/YYYY e hora está preenchida corretamente
-            if (typeof data === 'string' && data.includes('/') && hora && hora !== '00:00' && !hora.includes('T')) {
-                console.log('✅ Usando data/hora já formatadas');
-                return { data: data, hora: hora };
-            }
+            console.log('═══════════════════════════════════════');
+            console.log('📤 SAÍDA FINAL:');
+            console.log('📅 Data formatada:', dataFormatada);
+            console.log('🕐 Hora formatada:', horaFormatada);
+            console.log('═══════════════════════════════════════');
             
-            // Se for objeto Date ou string ISO - SEMPRE extrair data E hora daqui COM SEGUNDOS
-            if (data instanceof Date || (typeof data === 'string' && data.includes('T'))) {
-                const d = new Date(data);
-                
-                // Converter para horário de Brasília (UTC-3)
-                const utc = d.getTime();
-                const brasiliaOffset = -3 * 60 * 60 * 1000; // -3 horas em milissegundos
-                const dataBrasilia = new Date(utc + brasiliaOffset);
-                
-                const dia = String(dataBrasilia.getUTCDate()).padStart(2, '0');
-                const mes = String(dataBrasilia.getUTCMonth() + 1).padStart(2, '0');
-                const ano = dataBrasilia.getUTCFullYear();
-                const horas = String(dataBrasilia.getUTCHours()).padStart(2, '0');
-                const minutos = String(dataBrasilia.getUTCMinutes()).padStart(2, '0');
-                const segundos = String(dataBrasilia.getUTCSeconds()).padStart(2, '0');
-                
-                console.log('🕐 Conversão de horário:', {
-                    original: data,
-                    utc: d.toISOString(),
-                    brasilia_data: `${dia}/${mes}/${ano}`,
-                    brasilia_hora: `${horas}:${minutos}:${segundos}`
-                });
-                
-                return {
-                    data: `${dia}/${mes}/${ano}`,
-                    hora: `${horas}:${minutos}:${segundos}`
-                };
-            }
-            
-            // Se hora também vier em formato ISO
-            if (hora && typeof hora === 'string' && hora.includes('T')) {
-                const h = new Date(hora);
-                const horaFormatada = `${String(h.getHours()).padStart(2, '0')}:${String(h.getMinutes()).padStart(2, '0')}:${String(h.getSeconds()).padStart(2, '0')}`;
-                console.log('🕐 Hora extraída de ISO:', { hora, horaFormatada });
-                return { data: data || '', hora: horaFormatada };
-            }
-            
-            console.log('⚠️ Usando valores originais');
-            return { data: data || '', hora: hora || '' };
+            return { 
+                data: dataFormatada || '', 
+                hora: horaFormatada || '' 
+            };
         }
 
         function toggleDetalhesLimpeza(recordId) {
@@ -4155,6 +4162,13 @@
         }
 
         function filtrarLimpezas() {
+            // VALIDAÇÃO: Garantir que dadosOriginais é um array
+            if (!Array.isArray(dadosOriginais)) {
+                console.warn('⚠️ dadosOriginais não é array:', dadosOriginais);
+                displayRecords([]);
+                return;
+            }
+            
             let dadosFiltrados = [...dadosOriginais];
             
             // Filtro por período
@@ -4179,6 +4193,13 @@
         }
 
         function filtrarFeedbacks() {
+            // VALIDAÇÃO: Garantir que dadosOriginais é um array
+            if (!Array.isArray(dadosOriginais)) {
+                console.warn('⚠️ dadosOriginais não é array:', dadosOriginais);
+                displayFeedbacks([]);
+                return;
+            }
+            
             let dadosFiltrados = [...dadosOriginais];
             
             // Filtro por período
@@ -4223,6 +4244,12 @@
         }
 
         function filtrarPorPeriodo(dados, periodo) {
+            // VALIDAÇÃO: Garantir que dados é um array
+            if (!Array.isArray(dados)) {
+                console.warn('⚠️ dados não é array em filtrarPorPeriodo:', dados);
+                return [];
+            }
+            
             const hoje = new Date();
             hoje.setHours(0, 0, 0, 0);
             
@@ -4453,7 +4480,7 @@
         }
 
         async function loadFeedbackHistory() {
-            if (!SCRIPT_URL_FEEDBACK) {
+            if (!SCRIPT_URL) {
                 document.getElementById('recordsList').innerHTML = `
                     <div class="empty-state">
                         <h3>Configure a URL do Google Apps Script - Feedback</h3>
@@ -4468,7 +4495,7 @@
             document.getElementById('stats').innerHTML = '';
             
             try {
-                const response = await fetch(SCRIPT_URL_FEEDBACK + '?action=get');
+                const response = await fetch(SCRIPT_URL + '?action=get&tipo=avaliacao');
                 const result = await response.json();
                 
                 if (result.status === 'success' && result.data) {
@@ -4617,260 +4644,6 @@
 //             }
 //         }
 // 
-        // ============================================
-        // EXCLUSÃO DE REGISTROS POR PERÍODO
-        // ============================================
-        
-        // Inicializar anos disponíveis ao carregar solicitações
-        function inicializarSeletorAnos() {
-            const select = document.getElementById('anoExclusao');
-            const anoAtual = new Date().getFullYear();
-            
-            // Adicionar últimos 5 anos
-            for (let ano = anoAtual; ano >= anoAtual - 5; ano--) {
-                const option = document.createElement('option');
-                option.value = ano;
-                option.textContent = ano;
-                select.appendChild(option);
-            }
-        }
-
-        // Atualizar contagem de registros a excluir
-        async function atualizarContagemExclusao() {
-            const tipo = document.querySelector('input[name="tipoExclusao"]:checked').value;
-            const mes = document.getElementById('mesExclusao').value;
-            const ano = document.getElementById('anoExclusao').value;
-            
-            console.log('🔍 Filtro selecionado:', { tipo, mes, ano });
-            
-            const aviso = document.getElementById('avisoExclusao');
-            const btnExcluir = document.getElementById('btnExcluir');
-            
-            if (!mes || !ano) {
-                aviso.style.display = 'none';
-                btnExcluir.disabled = true;
-                btnExcluir.style.opacity = '0.5';
-                btnExcluir.style.cursor = 'not-allowed';
-                return;
-            }
-            
-            // Buscar registros
-            let registros = [];
-            
-            try {
-                if (tipo === 'limpeza') {
-                    if (!SCRIPT_URL_LIMPEZA) {
-                        showWarningModal('⚠️', 'URL Não Configurada', 'Configure a URL do Google Apps Script para limpeza primeiro.');
-                        return;
-                    }
-                    const response = await fetch(`${SCRIPT_URL_LIMPEZA}?action=get`);
-                    const result = await response.json();
-                    console.log('📡 Resposta do servidor (limpeza):', result);
-                    if (result.status === 'success') {
-                        registros = result.data || [];
-                        console.log('✅ Registros recebidos:', registros.length);
-                    }
-                } else {
-                    if (!SCRIPT_URL_FEEDBACK) {
-                        showWarningModal('⚠️', 'URL Não Configurada', 'Configure a URL do Google Apps Script para avaliação primeiro.');
-                        return;
-                    }
-                    const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
-                    const result = await response.json();
-                    console.log('📡 Resposta do servidor (feedback):', result);
-                    if (result.status === 'success') {
-                        registros = result.data || [];
-                        console.log('✅ Registros recebidos:', registros.length);
-                    }
-                }
-                
-                console.log('📋 Amostra de registros (primeiros 3):', registros.slice(0, 3));
-                
-                // Filtrar por mês e ano
-                const registrosFiltrados = registros.filter(r => {
-                    const data = r.Data || r.data;
-                    
-                    console.log('🔍 Verificando registro:', { 
-                        data_original: data,
-                        tipo_data: typeof data,
-                        Data_campo: r.Data,
-                        data_campo: r.data
-                    });
-                    
-                    if (!data) {
-                        console.log('❌ Data vazia');
-                        return false;
-                    }
-                    
-                    let mesReg, anoReg;
-                    
-                    // CASO 1: Data no formato ISO (2026-02-20T03:00:00.000Z)
-                    if (typeof data === 'string' && (data.includes('T') || data.includes('-'))) {
-                        const dateObj = new Date(data);
-                        mesReg = String(dateObj.getMonth() + 1).padStart(2, '0');
-                        anoReg = String(dateObj.getFullYear());
-                        console.log('📅 Data ISO convertida:', { data, mesReg, anoReg });
-                    }
-                    // CASO 2: Data como objeto Date
-                    else if (data instanceof Date) {
-                        mesReg = String(data.getMonth() + 1).padStart(2, '0');
-                        anoReg = String(data.getFullYear());
-                        console.log('📅 Data objeto convertida:', { mesReg, anoReg });
-                    }
-                    // CASO 3: Data no formato DD/MM/YYYY
-                    else {
-                        const partes = String(data).split('/');
-                        console.log('🔢 Partes da data:', partes);
-                        
-                        if (partes.length !== 3) {
-                            console.log('❌ Formato inválido (não tem 3 partes)');
-                            return false;
-                        }
-                        
-                        mesReg = partes[1];
-                        anoReg = partes[2];
-                        console.log('📅 Data DD/MM/YYYY:', { mesReg, anoReg });
-                    }
-                    
-                    const match = mesReg === mes && anoReg === ano;
-                    console.log('🎯 Comparação:', { 
-                        mesReg, 
-                        mes, 
-                        anoReg, 
-                        ano,
-                        match 
-                    });
-                    
-                    return match;
-                });
-                
-                const total = registrosFiltrados.length;
-                console.log('✅ Total de registros filtrados:', total);
-                console.log('📋 Registros filtrados:', registrosFiltrados);
-                
-                document.getElementById('totalExclusao').textContent = total;
-                
-                if (total > 0) {
-                    aviso.style.display = 'block';
-                    btnExcluir.disabled = false;
-                    btnExcluir.style.opacity = '1';
-                    btnExcluir.style.cursor = 'pointer';
-                } else {
-                    aviso.style.display = 'block';
-                    btnExcluir.disabled = true;
-                    btnExcluir.style.opacity = '0.5';
-                    btnExcluir.style.cursor = 'not-allowed';
-                }
-                
-            } catch (error) {
-                console.error('❌ Erro ao contar registros:', error);
-                showWarningModal('❌', 'Erro', 'Não foi possível contar os registros.');
-            }
-        }
-
-        // Confirmar exclusão
-        function confirmarExclusaoRegistros() {
-            const tipo = document.querySelector('input[name="tipoExclusao"]:checked').value;
-            const mes = document.getElementById('mesExclusao').value;
-            const ano = document.getElementById('anoExclusao').value;
-            const total = document.getElementById('totalExclusao').textContent;
-            
-            const meses = {
-                '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril',
-                '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto',
-                '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
-            };
-            
-            const tipoNome = tipo === 'limpeza' ? 'Limpeza' : 'Avaliação';
-            const mesNome = meses[mes];
-            
-            const modal = document.getElementById('confirmModal');
-            modal.querySelector('.confirm-icon').textContent = '🗑️';
-            modal.querySelector('.confirm-icon').style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
-            modal.querySelector('h2').textContent = 'Confirmar Exclusão';
-            modal.querySelector('p').innerHTML = `
-                <strong style="color:#dc3545;">⚠️ ATENÇÃO: Esta ação é IRREVERSÍVEL!</strong><br><br>
-                Você está prestes a excluir:<br>
-                <strong>${total} registro(s) de ${tipoNome}</strong><br>
-                Referente a: <strong>${mesNome} de ${ano}</strong><br><br>
-                Os dados serão permanentemente removidos do Google Sheets.<br><br>
-                Deseja continuar?
-            `;
-            modal.querySelector('.confirm-modal-buttons').innerHTML = `
-                <button class="btn-confirm-yes" style="background:#dc3545;" onclick="executarExclusaoRegistros()">🗑️ Sim, Excluir</button>
-                <button class="btn-confirm-no" onclick="cancelarExclusao()">❌ Cancelar</button>
-            `;
-            modal.classList.add('show');
-        }
-
-        // Executar exclusão
-        async function executarExclusaoRegistros() {
-            document.getElementById('confirmModal').classList.remove('show');
-            
-            const tipo = document.querySelector('input[name="tipoExclusao"]:checked').value;
-            const mes = document.getElementById('mesExclusao').value;
-            const ano = document.getElementById('anoExclusao').value;
-            
-            showWarningModal('⏳', 'Excluindo...', 'Aguarde enquanto os registros são removidos.');
-            
-            try {
-                const scriptUrl = tipo === 'limpeza' ? SCRIPT_URL_LIMPEZA : SCRIPT_URL_FEEDBACK;
-                
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'deleteByPeriod',
-                        mes: mes,
-                        ano: ano
-                    })
-                });
-                
-                closeWarningModal();
-                
-                showWarningModal('✅', 'Registros Excluídos!', `Os registros de ${mes}/${ano} foram removidos com sucesso.`);
-                
-                // Resetar form
-                document.getElementById('mesExclusao').value = '';
-                document.getElementById('anoExclusao').value = '';
-                document.getElementById('avisoExclusao').style.display = 'none';
-                document.getElementById('btnExcluir').disabled = true;
-                document.getElementById('btnExcluir').style.opacity = '0.5';
-                
-                // Recarregar histórico se estiver aberto
-                if (historicoAtual) {
-                    if (historicoAtual === 'limpeza' && tipo === 'limpeza') {
-                        loadRecords();
-                    } else if (historicoAtual === 'feedback' && tipo === 'avaliacao') {
-                        loadFeedbackHistory();
-                    }
-                }
-                
-            } catch (error) {
-                closeWarningModal();
-                console.error('Erro ao excluir registros:', error);
-                showWarningModal('❌', 'Erro', 'Não foi possível excluir os registros. Tente novamente.');
-            }
-        }
-
-        function cancelarExclusao() {
-            document.getElementById('confirmModal').classList.remove('show');
-            // Restaurar modal padrão
-            setTimeout(() => {
-                const modal = document.getElementById('confirmModal');
-                modal.querySelector('.confirm-icon').textContent = '🚪';
-                modal.querySelector('.confirm-icon').style.background = 'linear-gradient(135deg, #E63946 0%, #C41E3A 100%)';
-                modal.querySelector('h2').textContent = 'Confirmar Saída';
-                modal.querySelector('p').textContent = 'Você realmente deseja sair da sua conta?';
-                modal.querySelector('.confirm-modal-buttons').innerHTML = `
-                    <button class="btn-confirm-yes" onclick="confirmLogoutYes()">Sim, Sair</button>
-                    <button class="btn-confirm-no" onclick="confirmLogoutNo()">Não, Ficar</button>
-                `;
-            }, 300);
-        }
 
         // ============================================
         // EXCLUSÃO DE REGISTRO INDIVIDUAL
@@ -4903,75 +4676,64 @@
         async function executarExclusaoRegistroUnico() {
             document.getElementById('confirmModal').classList.remove('show');
             
-            if (!registroParaExcluir) return;
+            if (!registroParaExcluir) {
+                console.error('❌ registroParaExcluir está null!');
+                return;
+            }
             
             const { tipo, indice } = registroParaExcluir;
             
-            showWarningModal('⏳', 'Excluindo...', 'Aguarde enquanto o registro é removido.');
+            console.log('═══════════════════════════════════════');
+            console.log('🗑️ EXCLUSÃO INDIVIDUAL');
+            console.log('═══════════════════════════════════════');
+            console.log('📊 tipo:', tipo);
+            console.log('📊 indice:', indice);
+            
+            const rowIndex = indice + 2;
+            const timestamp = new Date().getTime();
+            const url = `${SCRIPT_URL}?action=deleteByRow&rowIndex=${rowIndex}&tipo=${tipo}&_t=${timestamp}`;
+            
+            console.log('📍 URL:', url);
+            console.log('═══════════════════════════════════════');
+            
+            showLoading();
             
             try {
-                const scriptUrl = tipo === 'limpeza' ? SCRIPT_URL_LIMPEZA : SCRIPT_URL_FEEDBACK;
+                console.log('🚀 Abrindo URL em nova aba (será fechada automaticamente)...');
                 
-                // Buscar o registro original (não o invertido) para pegar data/hora
-                let registro;
-                if (tipo === 'limpeza') {
-                    const response = await fetch(`${SCRIPT_URL_LIMPEZA}?action=get`);
-                    const result = await response.json();
-                    if (result.status === 'success' && result.data) {
-                        registro = result.data[indice];
-                    }
-                } else {
-                    const response = await fetch(`${SCRIPT_URL_FEEDBACK}?action=get`);
-                    const result = await response.json();
-                    if (result.status === 'success' && result.data) {
-                        registro = result.data[indice];
-                    }
-                }
+                // ABRIR EM NOVA ABA E FECHAR IMEDIATAMENTE
+                const win = window.open(url, '_blank');
                 
-                if (!registro) {
-                    throw new Error('Registro não encontrado');
-                }
-                
-                // Enviar para deletar por data/hora específica
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'deleteByRow',
-                        rowIndex: indice + 2 // +2 porque: +1 para Sheet 1-indexed, +1 para pular cabeçalho
-                    })
-                });
-                
-                closeWarningModal();
-                
-                showWarningModal('✅', 'Registro Excluído!', 'O registro foi removido com sucesso.');
-                
-                // Adicionar animação de exclusão ao card antes de recarregar
-                const cardElements = document.querySelectorAll('.record-card');
-                if (cardElements[indice]) {
-                    cardElements[indice].classList.add('deleting');
-                }
-                
-                // Mostrar toast de sucesso
-                showToast('Registro Excluído', 'O registro foi removido com sucesso.', 'success');
-                
-                // Recarregar histórico após animação
+                // Fechar após 1 segundo
                 setTimeout(() => {
-                    closeWarningModal();
-                    if (tipo === 'limpeza') {
-                        loadRecords();
-                    } else {
-                        loadFeedbackHistory();
-                    }
-                }, 500);
+                    if (win) win.close();
+                }, 1000);
+                
+                console.log('✅ Requisição enviada');
+                
+                // Aguardar 3 segundos para processar
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                hideLoading();
+                showToast('Registro Excluído', 'Recarregando lista...', 'success');
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                console.log('🔄 Recarregando histórico...');
+                
+                if (tipo === 'limpeza') {
+                    await loadRecords();
+                } else {
+                    await loadFeedbackHistory();
+                }
+                
+                console.log('✅ Concluído! Verifique o Google Sheets.');
+                console.log('═══════════════════════════════════════');
                 
             } catch (error) {
-                closeWarningModal();
-                console.error('Erro ao excluir registro:', error);
-                showToast('Erro ao Excluir', 'Não foi possível excluir o registro. Tente novamente.', 'error');
+                hideLoading();
+                console.error('❌ ERRO:', error);
+                showToast('Erro ao Excluir', error.message, 'error');
             }
             
             registroParaExcluir = null;
@@ -5021,16 +4783,16 @@
                 const item = pendingSync[i];
                 try {
                     if (item.type === 'limpeza') {
-                        await fetch(SCRIPT_URL_LIMPEZA, {
+                        await fetch(SCRIPT_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
+                            
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(item.data)
                         });
                     } else if (item.type === 'feedback') {
-                        await fetch(SCRIPT_URL_FEEDBACK, {
+                        await fetch(SCRIPT_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
+                            
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(item.data)
                         });
@@ -5075,11 +4837,11 @@
             try {
                 console.log('📡 Buscando avaliações do Google Sheets...');
                 
-                if (!SCRIPT_URL_FEEDBACK) {
+                if (!SCRIPT_URL) {
                     throw new Error('URL do Google Apps Script não configurada');
                 }
                 
-                const url = `${SCRIPT_URL_FEEDBACK}?action=get&t=${Date.now()}`;
+                const url = `${SCRIPT_URL}?action=get&t=${Date.now()}`;
                 console.log('URL:', url);
                 
                 const response = await fetch(url, {
@@ -5447,6 +5209,7 @@
             const hora = agora.toLocaleTimeString('pt-BR');
 
             const avaliacaoData = {
+                tipo: 'avaliacao',  // ← NOVO
                 action: 'add',
                 data: data,
                 hora: hora,
@@ -5458,26 +5221,33 @@
                 identificacao: identificacao
             };
 
-            // Mostrar loading
-            showWarningModal('⏳', 'Enviando...', 'Aguarde enquanto enviamos sua avaliação.');
+            console.log('📤 Enviando avaliação:', avaliacaoData);
+            console.log('📍 URL do script:', SCRIPT_URL);
+
+            // Mostrar loading overlay
+            showLoading();
 
             try {
-                if (!SCRIPT_URL_FEEDBACK) {
+                if (!SCRIPT_URL) {
                     throw new Error('URL do script de avaliação não configurada');
                 }
 
-                await fetch(SCRIPT_URL_FEEDBACK, {
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    mode: 'no-cors',  // Necessário para evitar erro CORS
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(avaliacaoData)
                 });
 
+                // No-cors não permite ler resposta
+                // Assumir sucesso e continuar
+                
                 // Sucesso
+                hideLoading();
                 closeWarningModal();
-                showWarningModal('✅', 'Avaliação Enviada!', 'Obrigado por contribuir com a qualidade do ambiente!');
+                showToast('Avaliação Enviada', 'Obrigado por contribuir com a qualidade do ambiente!', 'success');
                 
                 // Resetar formulário mas MANTER na tela de avaliação
                 document.getElementById('quickFeedbackForm').reset();
@@ -5491,9 +5261,10 @@
                 document.getElementById('qf_relax').value = 0;
 
             } catch (error) {
+                hideLoading();
                 closeWarningModal();
-                showWarningModal('❌', 'Erro ao Enviar', 'Não foi possível enviar a avaliação. Verifique sua conexão ou tente novamente.');
-                console.error('Erro:', error);
+                showToast('Erro ao Enviar', 'Não foi possível enviar a avaliação. Verifique sua conexão ou tente novamente.', 'error');
+                console.error('❌ Erro detalhado:', error);
             }
         });
 
